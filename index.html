@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>Phasmophobia RPG</title>
+<title>Phasmophobia RPG Tracker</title>
 <style>
 :root{
   --bg:#080b10;--bg2:#0d1320;--panel:#111827;--panel2:#182235;--panel3:#202c44;
@@ -20,7 +20,7 @@ table{width:100%;border-collapse:collapse;font-size:14px}th,td{padding:9px;borde
 </head>
 <body>
 <header>
-  <h1>Phasmophobia RPG V1.0</h1>
+  <h1>Phasmophobia RPG Tracker</h1>
   <p>One character per player. The in-game lobby supplies the investigation; this sheet tracks your RPG progression, rewards, records, talents, and loadout limits.</p>
 </header>
 <div class="topbar"><div class="actions">
@@ -41,7 +41,7 @@ table{width:100%;border-collapse:collapse;font-size:14px}th,td{padding:9px;borde
         <button class="tab" data-tab="talents" onclick="showTab('talents')" id="talentsTab">Talents (0)</button>
         <button class="tab" data-tab="progress" onclick="showTab('progress')">Progress</button>
         <button class="tab" data-tab="shop" onclick="showTab('shop')">Shop</button>
-        <button class="tab" data-tab="rules" onclick="showTab('rules')">Rules</button>
+        <button class="tab" data-tab="rules" onclick="showTab('rules')">Getting Started</button><button>Rules</button>
       </nav>
       <section id="character" class="tabPanel active"></section>
       <section id="equipment" class="tabPanel"></section>
@@ -222,5 +222,36 @@ function toast(msg){const t=document.getElementById('toast');t.textContent=msg;t
 function escapeHtml(s){return String(s).replace(/[&<>'"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[c]))}
 fillSelects();migrate();render();
 </script>
+
+<!-- Getting Started content -->
+<div id="getting-started-tab" style="display:none;padding:16px">
+
+<h2>Getting Started</h2>
+<p>This tracker transforms <strong>Phasmophobia</strong> into an RPG progression system. Your investigator earns experience, gold, talent points, equipment upgrades, and permanent progression outside the game.</p>
+
+<h3>Before You Begin</h3>
+<ul>
+<li>For the best experience, have all Tier 3 equipment unlocked in Phasmophobia. If you don't, use the highest tier currently available until you unlock it in-game.</li>
+<li>Create a brand new empty loadout in Phasmophobia.</li>
+<li>Equip one of every <strong>Tier 1 primary item</strong>.</li>
+<li>Do not equip any secondary equipment.</li>
+<li>Start a new character in this tracker.</li>
+</ul>
+
+<h3>Playing the Campaign</h3>
+<ol>
+<li>Play a contract in Phasmophobia.</li>
+<li>Click <strong>Complete Contract</strong>.</li>
+<li>Enter the map, difficulty, reward money, and contract results.</li>
+<li>Click <strong>Roll Loot</strong>.</li>
+<li>Apply any equipment unlocks or upgrades to your Phasmophobia loadout before your next contract.</li>
+<li>Spend Gold in the Shop, earn Talent Points from leveling, and continue progressing your character.</li>
+</ol>
+
+<h3>Goal</h3>
+<p>Grow your investigator from a rookie with only Tier 1 primary gear into a veteran with fully upgraded equipment, completed talent trees, and mastery over every difficulty.</p>
+
+</div>
+
 </body>
 </html>
