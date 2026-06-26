@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Phasmophobia RPG</title>
+<style>
+:root{
+  --bg:#080b10;--bg2:#0d1320;--panel:#111827;--panel2:#182235;--panel3:#202c44;
+  --text:#edf3fb;--muted:#9aa8bb;--line:#2d3a50;--accent:#9b5cff;--accent2:#42d392;
+  --warn:#ffd166;--bad:#ff6b6b;--good:#53e0a6;--blue:#6db7ff;--shadow:0 22px 55px rgba(0,0,0,.34)
+}
+*{box-sizing:border-box} body{margin:0;background:radial-gradient(circle at 15% -10%,#2b1858 0,#111827 32%,#080b10 72%);color:var(--text);font-family:Inter,ui-sans-serif,system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;min-height:100vh}
+header{max-width:1280px;margin:0 auto;padding:28px 18px 14px} h1{font-size:34px;line-height:1.05;margin:0 0 8px;letter-spacing:-.04em} p{color:var(--muted);line-height:1.45}.shell{max-width:1280px;margin:0 auto;padding:0 18px 42px}.topbar{position:sticky;top:0;z-index:20;margin:0 -18px 18px;padding:12px 18px;background:rgba(8,11,16,.82);backdrop-filter:blur(12px);border-bottom:1px solid rgba(255,255,255,.06)}
+.actions{display:flex;gap:10px;flex-wrap:wrap;align-items:center;max-width:1280px;margin:0 auto}.spacer{flex:1}.btn,button{border:0;border-radius:12px;padding:10px 14px;background:var(--accent);color:white;font-weight:800;cursor:pointer;box-shadow:0 8px 18px rgba(155,92,255,.18)}button.secondary{background:var(--panel3);box-shadow:none}button.ghost{background:transparent;border:1px solid var(--line);box-shadow:none}button.danger{background:#9b2d45}.btn:disabled,button:disabled{opacity:.45;cursor:not-allowed}.autosave{color:var(--muted);font-size:13px}.layout{display:grid;grid-template-columns:1fr;gap:16px}@media(min-width:980px){.layout{grid-template-columns:330px 1fr}.sidebar{position:sticky;top:76px;align-self:start}}
+.card{background:linear-gradient(180deg,rgba(17,24,39,.96),rgba(13,19,32,.96));border:1px solid var(--line);border-radius:22px;padding:18px;box-shadow:var(--shadow)}.heroCard{text-align:left}.avatar{width:70px;height:70px;border-radius:20px;background:linear-gradient(135deg,var(--accent),#37215f);display:grid;place-items:center;font-size:32px;margin-bottom:12px}.nameRow{display:flex;gap:8px;align-items:center}.nameInput{font-size:23px;font-weight:900;color:var(--text);background:transparent;border:0;border-bottom:1px dashed var(--line);padding:4px;width:100%;outline:none}.subtitle{color:var(--muted);font-size:13px;margin-top:2px}.meter{height:12px;background:#080b10;border:1px solid var(--line);border-radius:999px;overflow:hidden;margin:10px 0 4px}.meter>div{height:100%;background:linear-gradient(90deg,var(--accent),var(--blue));width:0}.miniStats{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:14px}.mini{background:var(--panel2);border:1px solid var(--line);border-radius:16px;padding:12px}.mini span{display:block;color:var(--muted);font-size:12px}.mini b{font-size:22px}.license{margin-top:12px;padding:12px;border-radius:16px;background:#15122a;border:1px solid #493a84}.tabs{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:16px}.tab{background:var(--panel2);box-shadow:none}.tab.active{background:var(--accent)}.tabPanel{display:none}.tabPanel.active{display:block}.grid{display:grid;gap:14px}.grid.two{grid-template-columns:1fr}@media(min-width:760px){.grid.two{grid-template-columns:1fr 1fr}.grid.three{grid-template-columns:repeat(3,1fr)}}
+.sectionTitle{display:flex;justify-content:space-between;gap:12px;align-items:end;margin:0 0 10px}.sectionTitle h2,.sectionTitle h3{margin:0}.pill{display:inline-flex;align-items:center;gap:5px;border:1px solid var(--line);background:var(--panel3);color:#dce7f7;border-radius:999px;padding:4px 9px;font-size:12px;font-weight:800}.pill.good{color:var(--good)}.pill.warn{color:var(--warn)}.pill.bad{color:var(--bad)}.equipGrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:10px}.equip{background:var(--panel2);border:1px solid var(--line);border-radius:16px;padding:12px}.equip.locked{opacity:.6}.equipHead{display:flex;justify-content:space-between;gap:8px}.gearStats{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}.gearStat{font-weight:900;color:#fff;background:#0a0e15;border:1px solid var(--line);border-radius:999px;padding:5px 9px;font-size:13px}
+table{width:100%;border-collapse:collapse;font-size:14px}th,td{padding:9px;border-bottom:1px solid var(--line);text-align:left}th{color:#c7d3e2;background:rgba(255,255,255,.02)}.tableWrap{overflow:auto;border:1px solid var(--line);border-radius:16px}.tableWrap table{min-width:720px}.cell{font-weight:900}.clear{color:var(--good)}.perfect{color:var(--warn)}.death{color:var(--bad)}.shopItem,.talent{display:flex;justify-content:space-between;gap:14px;align-items:center;background:var(--panel2);border:1px solid var(--line);border-radius:16px;padding:12px;margin:10px 0}.small{font-size:12px;color:var(--muted)}.notice{background:#17142e;border:1px solid #493a84;color:#ddcffd;border-radius:16px;padding:12px;margin:12px 0}.rules h3{margin-top:22px}.rules li{margin:7px 0;color:#cdd7e5}.modalWrap{display:none;position:fixed;inset:0;z-index:100;background:rgba(0,0,0,.74);align-items:center;justify-content:center;padding:18px}.modal{width:100%;max-width:760px;max-height:92vh;overflow:auto;background:#101724;border:1px solid var(--line);border-radius:24px;padding:20px;box-shadow:var(--shadow)}.modal h2{margin-top:0}.formgrid{display:grid;grid-template-columns:1fr;gap:12px}@media(min-width:680px){.formgrid{grid-template-columns:1fr 1fr}}label{display:block;color:#cbd7e7;font-weight:800}input,select{width:100%;margin-top:6px;background:#090d14;color:var(--text);border:1px solid var(--line);border-radius:12px;padding:11px;font-size:14px}input.invalid,select.invalid{border-color:var(--bad);box-shadow:0 0 0 3px rgba(255,107,107,.14)}.errorBox{display:none;margin:12px 0;padding:12px;border:1px solid rgba(255,107,107,.65);background:rgba(255,107,107,.1);color:#ffd8d8;border-radius:14px}.errorBox ul{margin:6px 0 0 18px;padding:0}.errorBox li{margin:4px 0}.checkrow{display:flex;align-items:center;gap:9px;margin:10px 0}.checkrow input{width:auto}.footerBtns{display:flex;gap:10px;justify-content:flex-end;flex-wrap:wrap;margin-top:16px}.lootBanner{font-size:22px;font-weight:950;color:white;padding:16px;border-radius:18px;background:linear-gradient(135deg,#341d68,#122139);border:1px solid #59449a;margin:14px 0}.kbd{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;background:#0a0e15;border:1px solid var(--line);border-radius:7px;padding:1px 5px}.empty{padding:24px;text-align:center;color:var(--muted);border:1px dashed var(--line);border-radius:16px}.toast{position:fixed;right:18px;bottom:18px;background:#121a28;border:1px solid var(--line);border-radius:14px;padding:10px 14px;box-shadow:var(--shadow);display:none;z-index:200;color:#dfe9f7}
+</style>
+</head>
+<body>
+<header>
+  <h1>Phasmophobia RPG V1.0</h1>
+  <p>One character per player. The in-game lobby supplies the investigation; this sheet tracks your RPG progression, rewards, records, talents, and loadout limits.</p>
+</header>
+<div class="topbar"><div class="actions">
+  <button onclick="openContract()">Complete Contract</button>
+  <button class="secondary" onclick="saveToFile()">Save Character</button>
+  <button class="secondary" onclick="document.getElementById('loadFile').click()">Load Character</button>
+  <input id="loadFile" type="file" accept="application/json,.json" style="display:none" onchange="loadFromFile(event)">
+  <button class="ghost" onclick="newCharacter()">New Character</button>
+  <span class="spacer"></span><span id="autosave" class="autosave">Autosaved</span>
+</div></div>
+<main class="shell">
+  <div class="layout">
+    <aside class="sidebar"><section id="sideCard" class="card heroCard"></section></aside>
+    <section class="card">
+      <nav class="tabs">
+        <button class="tab active" data-tab="character" onclick="showTab('character')">Character</button>
+        <button class="tab" data-tab="equipment" onclick="showTab('equipment')">Equipment</button>
+        <button class="tab" data-tab="talents" onclick="showTab('talents')" id="talentsTab">Talents (0)</button>
+        <button class="tab" data-tab="progress" onclick="showTab('progress')">Progress</button>
+        <button class="tab" data-tab="shop" onclick="showTab('shop')">Shop</button>
+        <button class="tab" data-tab="rules" onclick="showTab('rules')">Rules</button>
+      </nav>
+      <section id="character" class="tabPanel active"></section>
+      <section id="equipment" class="tabPanel"></section>
+      <section id="talents" class="tabPanel"></section>
+      <section id="progress" class="tabPanel"></section>
+      <section id="shop" class="tabPanel"></section>
+      <section id="rules" class="tabPanel rules"></section>
+    </section>
+  </div>
+</main>
+
+<div id="contractModal" class="modalWrap"><div class="modal">
+  <h2>Complete Contract</h2>
+  <p>Use the reward money from the Phasmophobia results screen. The tracker converts it into EXP and Gold, applies multiplayer/difficulty penalties, updates records, then rolls one bonus loot reward.</p>
+  <div class="formgrid">
+    <label>Map<select id="cMap" required></select></label>
+    <label>Difficulty<select id="cDiff"></select></label>
+    <label>In-game Reward Money<input id="cMoney" type="number" min="1" max="10000" placeholder="1-10000"></label>
+    <label>Players in Lobby<select id="cPlayers"><option>1</option><option>2</option><option>3</option><option>4</option></select></label>
+  </div>
+  <div class="checkrow"><input id="cCorrect" type="checkbox" checked><label for="cCorrect">Ghost identified correctly</label></div>
+  <div class="checkrow"><input id="cSurvived" type="checkbox" checked><label for="cSurvived">My character survived</label></div>
+  <div class="checkrow"><input id="cPerfect" type="checkbox"><label for="cPerfect">Perfect investigation</label></div>
+  <div id="contractErrors" class="errorBox"></div>
+  <div class="footerBtns"><button class="secondary" onclick="closeModal('contractModal')">Cancel</button><button onclick="submitContract()">Roll Loot</button></div>
+</div></div>
+
+<div id="resultModal" class="modalWrap"><div class="modal"><h2>Contract Complete</h2><div id="resultBody"></div><div class="footerBtns"><button onclick="closeModal('resultModal');showTab('character')">Continue</button></div></div></div>
+<div id="toast" class="toast"></div>
+
+<script>
+const difficulties=['Amateur','Intermediate','Professional','Nightmare','Insanity'];
+const diffLevel=[1,5,10,20,35];
+const maps=['Tanglewood Drive','Edgefield Road','Ridgeview Court','Grafton Farmhouse','Willow Street','Bleasdale Farmhouse','Camp Woodwind','Maple Lodge Campsite','Prison','Brownstone High School','Sunny Meadows','Sunny Meadows Restricted','Point Hope'];
+const primaries=['EMF Reader','Flashlight','UV Light','Spirit Box','Ghost Writing Book','Thermometer','DOTS Projector','Video Camera'];
+const secondaries=['Salt','Incense','Igniter','Firelight','Crucifix','Motion Sensor','Sound Sensor','Tripod','Head Gear','Sanity Medication','Parabolic Microphone','Photo Camera'];
+const lootTables=[
+  {equip:30,slot:25,upgrade:15,gold:30},
+  {equip:20,slot:20,upgrade:10,gold:50},
+  {equip:10,slot:10,upgrade:10,gold:70},
+  {equip:5,slot:5,upgrade:5,gold:85},
+  {equip:0,slot:0,upgrade:0,gold:100}
+];
+const talents=[
+{id:'fastLearner',name:'Fast Learner',tree:'Veteran',desc:'+10% EXP from contracts.',cost:1},
+{id:'survivalTraining',name:'Survival Training',tree:'Veteran',desc:'Surviving grants +5% EXP.',cost:1},
+{id:'mentor',name:'Mentor',tree:'Veteran',desc:'+5% EXP when playing with 2+ players.',cost:2,req:'fastLearner'},
+{id:'fieldVeteran',name:'Field Veteran',tree:'Veteran',desc:'Penalties from higher difficulties are 5% less harsh.',cost:2,req:'survivalTraining'},
+{id:'seasonedSpecialist',name:'Seasoned Specialist',tree:'Veteran',desc:'Each level-up grants +75 bonus Gold.',cost:3,req:'mentor'},
+{id:'negotiator',name:'Contract Negotiator',tree:'Investigator',desc:'+10% Gold from contracts.',cost:1},
+{id:'thorough',name:'Thorough',tree:'Investigator',desc:'Perfect investigations grant +25 bonus Gold.',cost:1},
+{id:'cleanCase',name:'Clean Case File',tree:'Investigator',desc:'Correct ghost identification grants +5% EXP.',cost:1},
+{id:'perfectionist',name:'Perfectionist',tree:'Investigator',desc:'Perfect investigations grant +10% EXP.',cost:2,req:'thorough'},
+{id:'caseCloser',name:'Case Closer',tree:'Investigator',desc:'Correct ghost + survival grants +25 Gold.',cost:2,req:'cleanCase'},
+{id:'haggler',name:'Haggler',tree:'Technician',desc:'Shop prices are 10% cheaper.',cost:1},
+{id:'organizedKit',name:'Organized Kit',tree:'Technician',desc:'Slot unlocks from the shop are 15% cheaper.',cost:1},
+{id:'efficientParts',name:'Efficient Parts',tree:'Technician',desc:'Gear upgrades from the shop are 10% cheaper.',cost:2,req:'haggler'},
+{id:'biggerShop',name:'Expanded Catalog',tree:'Technician',desc:'Shop shows one additional offer.',cost:2,req:'haggler'},
+{id:'couponBook',name:'Coupon Book',tree:'Technician',desc:'Shop rerolls cost 20% less.',cost:2,req:'biggerShop'},
+{id:'luckyFind',name:'Lucky Find',tree:'Fortune',desc:'Gold Cache loot rewards are 15% larger.',cost:1},
+{id:'treasureHunter',name:'Treasure Hunter',tree:'Fortune',desc:'Gold Cache loot rewards are 10% larger.',cost:1},
+{id:'salvager',name:'Salvager',tree:'Fortune',desc:'Gold Cache loot has a higher minimum payout.',cost:2,req:'luckyFind'},
+{id:'rareSalvage',name:'Rare Salvage',tree:'Fortune',desc:'Gear/slot loot rewards show up slightly more often at your recommended difficulty.',cost:2,req:'treasureHunter'},
+{id:'jackpot',name:'Jackpot',tree:'Fortune',desc:'Small chance for a Gold Cache to be doubled.',cost:3,req:'salvager'},
+{id:'loadoutPlanner',name:'Loadout Planner',tree:'Quartermaster',desc:'Equipment unlocks from the shop cost 10% less.',cost:1},
+{id:'extraPocket',name:'Extra Pocket',tree:'Quartermaster',desc:'First slot shop purchase after each level-up is 25 Gold cheaper.',cost:1},
+{id:'armoryAccess',name:'Armory Access',tree:'Quartermaster',desc:'Unlock offers are more likely to appear in generated shop stock.',cost:2,req:'loadoutPlanner'},
+{id:'supplyChain',name:'Supply Chain',tree:'Quartermaster',desc:'Rerolling the shop adds one extra offer this time.',cost:2,req:'armoryAccess'},
+{id:'arsenal',name:'Arsenal',tree:'Quartermaster',desc:'Every 5th clear grants +50 bonus Gold.',cost:3,req:'supplyChain'}
+]
+function newGame(){
+  const equipment={}; primaries.forEach(x=>equipment[x]={tier:1,slots:1,primary:true}); secondaries.forEach(x=>equipment[x]={tier:0,slots:0,primary:false});
+  const records={overall:{},maps:{},contracts:0,totalDeaths:0,totalPerfects:0,totalClears:0,bestReward:0};
+  difficulties.forEach(d=>records.overall[d]={clears:0,perfects:0,deaths:0,streak:0,bestStreak:0});
+  maps.forEach(m=>{records.maps[m]={deaths:0}; difficulties.forEach(d=>records.maps[m][d]={clear:false,perfect:false,deaths:0});});
+  return {version:7,name:'Investigator',level:1,exp:0,gold:0,talentPoints:0,spentTalentPoints:0,talents:{},equipment,records,gearTierProgress:{professional:[],nightmare:[]},shop:[],created:new Date().toISOString()};
+}
+let state=loadAuto() || newGame();
+function expNeeded(l){return Math.floor(80 + l*l*20)}
+function maxDifficultyIndex(){let i=0; for(let n=0;n<diffLevel.length;n++) if(state.level>=diffLevel[n]) i=n; return i}
+function uniqueClears(diff){return maps.filter(m=>state.records.maps[m]?.[diff]?.clear).length}
+function tier2Progress(){ensureTierProgress(); return state.gearTierProgress.professionalCount||0}
+function tier3Progress(){ensureTierProgress(); return tier2Unlocked()?(state.gearTierProgress.nightmareAfterTier2Count||0):0}
+function tier2Unlocked(){return tier2Progress()>=5}
+function tier3Unlocked(){return tier2Unlocked() && tier3Progress()>=5}
+function tierCap(){if(tier3Unlocked()) return 3; if(tier2Unlocked()) return 2; return 1}
+function ensureTierProgress(){
+  state.gearTierProgress??={professionalCount:0,nightmareAfterTier2Count:0};
+  if(Array.isArray(state.gearTierProgress.professional) && state.gearTierProgress.professionalCount==null) state.gearTierProgress.professionalCount=state.gearTierProgress.professional.length;
+  if(Array.isArray(state.gearTierProgress.nightmare) && state.gearTierProgress.nightmareAfterTier2Count==null) state.gearTierProgress.nightmareAfterTier2Count=state.gearTierProgress.nightmare.length;
+  state.gearTierProgress.professionalCount??=0; state.gearTierProgress.nightmareAfterTier2Count??=0;
+}
+function awardTierProgress(diff,map,capBefore){ensureTierProgress(); const idx=difficulties.indexOf(diff); if(idx>=2) state.gearTierProgress.professionalCount++; if(idx>=3&&capBefore>=2) state.gearTierProgress.nightmareAfterTier2Count++;}
+function currentMilestone(){
+  const md=maxDifficultyIndex();
+  if(tierCap()<2){
+    if(md<2) return `Reach Level ${diffLevel[2]} to unlock Professional. Then clear 5 Professional-or-higher contracts to unlock Tier 2 gear.`;
+    return `Clear ${Math.max(0,5-tier2Progress())} more Professional-or-higher contract${Math.max(0,5-tier2Progress())===1?'':'s'} to unlock Tier 2 gear.`;
+  }
+  if(tierCap()<3){
+    if(md<3) return `Reach Level ${diffLevel[3]} to unlock Nightmare. Then clear 5 Nightmare-or-higher contracts to unlock Tier 3 gear.`;
+    return `Clear ${Math.max(0,5-tier3Progress())} more eligible Nightmare-or-higher contract${Math.max(0,5-tier3Progress())===1?'':'s'} to unlock Tier 3 gear.`;
+  }
+  return 'All gear tiers are unlocked. Push Insanity, finish maps, and complete your build.';
+}
+function hasTalent(id){return !!state.talents[id]}
+function shopDiscount(cost,type){let c=cost; if(hasTalent('haggler')) c*=.9; if(type==='slot'&&hasTalent('organizedKit')) c*=.85; if(type==='upgrade'&&hasTalent('efficientParts')) c*=.9; if(type==='unlock'&&hasTalent('loadoutPlanner')) c*=.9; return Math.ceil(c)}
+function pct(n,d){return d?Math.round(n/d*100):0}
+function nextDifficulty(){const idx=maxDifficultyIndex(); if(idx>=difficulties.length-1)return 'All difficulties unlocked'; return `Level ${diffLevel[idx+1]} unlocks ${difficulties[idx+1]}`}
+function saveAuto(){localStorage.setItem('phasmoRpgAutosave',JSON.stringify(state)); const el=document.getElementById('autosave'); if(el){el.textContent='Autosaved '+new Date().toLocaleTimeString([], {hour:'numeric',minute:'2-digit'});}}
+function loadAuto(){try{const raw=localStorage.getItem('phasmoRpgAutosave'); return raw?JSON.parse(raw):null}catch{return null}}
+function render(){renderSide();renderCharacter();renderEquipment();renderTalents();renderProgress();renderShop();renderRules();const tt=document.getElementById('talentsTab'); if(tt)tt.textContent=`Talents (${state.talentPoints})`;saveAuto();}
+function renderSide(){const need=expNeeded(state.level), md=difficulties[maxDifficultyIndex()], cap=tierCap(); const clearPct=pct(state.records.totalClears,state.records.contracts); const survPct=pct(state.records.contracts-state.records.totalDeaths,state.records.contracts); document.getElementById('sideCard').innerHTML=`
+  <div class="avatar">📟</div><div class="nameRow"><input class="nameInput" value="${escapeHtml(state.name)}" oninput="state.name=this.value;saveAuto();"></div>
+  <div class="subtitle">Level ${state.level} ${md} Investigator</div>
+  <div class="meter"><div style="width:${Math.min(100, state.exp/need*100)}%"></div></div><div class="small">${state.exp} / ${need} EXP to next level</div>
+  <div class="miniStats"><div class="mini"><span>Gold</span><b>${state.gold}</b></div><div class="mini"><span>Talent Points</span><b>${state.talentPoints}</b></div><div class="mini"><span>Max Difficulty</span><b>${md}</b></div><div class="mini"><span>Gear Cap</span><b>Tier ${cap}</b></div></div>
+  <div class="license"><b>Gear Tier Unlocks</b><div class="small">Tier 2: ${tier2Progress()}/5 Professional+ clears</div><div class="small">Tier 3: ${tier3Progress()}/5 eligible Nightmare+ clears</div></div>
+  <div class="miniStats"><div class="mini"><span>Clear Rate</span><b>${clearPct}%</b></div><div class="mini"><span>Survival</span><b>${survPct}%</b></div></div>
+  <p class="small">${nextDifficulty()}</p>`}
+function renderCharacter(){const md=difficulties[maxDifficultyIndex()]; document.getElementById('character').innerHTML=`
+  <div class="sectionTitle"><div><h2>Character Overview</h2><p>Progress belongs to this character, even in another player's lobby.</p></div></div>
+  <div class="grid three">
+    <div class="mini"><span>Level</span><b>${state.level}</b><div class="small">${state.exp}/${expNeeded(state.level)} EXP</div></div>
+    <div class="mini"><span>Recommended Difficulty</span><b>${md}</b><div class="small">Higher difficulties reduce EXP/Gold.</div></div>
+    <div class="mini"><span>Gear Tier Cap</span><b>Tier ${tierCap()}</b><div class="small">Controls loot/shop upgrades.</div></div>
+  </div>
+  <div class="notice"><b>Current milestone:</b> ${currentMilestone()}</div>
+  <div class="grid two"><div class="card" style="box-shadow:none"><h3>Difficulty Unlocks</h3>${difficulties.map((d,i)=>`<p><span class="pill ${state.level>=diffLevel[i]?'good':''}">${state.level>=diffLevel[i]?'✓':'○'} Lv ${diffLevel[i]}</span> ${d}</p>`).join('')}</div>
+  <div class="card" style="box-shadow:none"><h3>Campaign Stats</h3><p>Contracts: <b>${state.records.contracts}</b></p><p>Clears: <b>${state.records.totalClears}</b></p><p>Perfects: <b>${state.records.totalPerfects}</b></p><p>Deaths: <b>${state.records.totalDeaths}</b></p><p>Best Reward Entered: <b>$${state.records.bestReward}</b></p></div></div>`}
+function equipCard(name,e){return `<div class="equip ${e.tier?'':'locked'}"><div class="equipHead"><b>${name}</b><span class="pill ${e.primary?'':'warn'}">${e.primary?'Primary':'Secondary'}</span></div><div class="gearStats"><span class="gearStat">Tier ${e.tier}</span><span class="gearStat">Slots ${e.slots}/3</span></div>${e.tier?'<div class="small">Usable in your RPG loadout.</div>':'<div class="small">Locked — equipment unlock grants Tier 1 + 1 slot.</div>'}</div>`}
+function renderEquipment(){document.getElementById('equipment').innerHTML=`<div class="sectionTitle"><div><h2>Equipment</h2><p>Primaries start at Tier 1 with 1 slot. Secondaries start locked; unlocking gives Tier 1 + 1 slot.</p></div></div><h3>Primary Gear</h3><div class="equipGrid">${primaries.map(n=>equipCard(n,state.equipment[n])).join('')}</div><h3>Secondary Gear</h3><div class="equipGrid">${secondaries.map(n=>equipCard(n,state.equipment[n])).join('')}</div>`}
+function renderProgress(){const overall=difficulties.map(d=>{const r=state.records.overall[d];return `<tr><td>${d}</td><td>${r.clears}</td><td>${r.perfects}</td><td>${r.deaths}</td><td>${r.bestStreak}</td></tr>`}).join(''); const rows=maps.map(m=>`<tr><td>${m}<div class="small">Deaths: ${state.records.maps[m].deaths}</div></td>${difficulties.map(d=>{const c=state.records.maps[m][d]; const s=c.perfect?'★':c.clear?'✓':c.deaths?'☠':'—'; const cls=c.perfect?'perfect':c.clear?'clear':c.deaths?'death':''; return `<td class="cell ${cls}">${s}</td>`}).join('')}</tr>`).join(''); document.getElementById('progress').innerHTML=`<div class="sectionTitle"><div><h2>Progress Records</h2><p>Completion is tracked by difficulty and map. Deaths are recorded on contract submission.</p></div></div><h3>Overall by Difficulty</h3><div class="tableWrap"><table><thead><tr><th>Difficulty</th><th>Clears</th><th>Perfects</th><th>Deaths</th><th>Best Streak</th></tr></thead><tbody>${overall}</tbody></table></div><h3>Map Completion</h3><div class="tableWrap"><table><thead><tr><th>Map</th>${difficulties.map(d=>`<th>${d}</th>`).join('')}</tr></thead><tbody>${rows}</tbody></table></div><p class="small">Legend: <span class="clear">✓</span> clear, <span class="perfect">★</span> perfect, <span class="death">☠</span> death without clear, — incomplete.</p>`}
+function canTalent(t){return state.talentPoints>=t.cost && !hasTalent(t.id) && (!t.req||hasTalent(t.req))}
+function buyTalent(id){const t=talents.find(x=>x.id===id); if(!t||!canTalent(t))return; state.talentPoints-=t.cost; state.spentTalentPoints+=t.cost; state.talents[id]=true; render(); toast('Talent learned: '+t.name)}
+function renderTalents(){const groups={}; talents.forEach(t=>(groups[t.tree]??=[]).push(t)); document.getElementById('talents').innerHTML=`<div class="sectionTitle"><div><h2>Talent Tree</h2><p>Talents improve economy and progression. They do not alter ghost behavior or in-game rules.</p></div><span class="pill">${state.talentPoints} TP available</span></div>`+Object.entries(groups).map(([tree,items])=>`<h3>${tree}</h3>${items.map(t=>`<div class="talent" style="opacity:${hasTalent(t.id)||canTalent(t)?1:.55}"><div><b>${hasTalent(t.id)?'✓ ':''}${t.name}</b> <span class="pill">${t.cost} TP</span><div class="small">${t.desc}${t.req?` Requires ${talents.find(x=>x.id===t.req).name}.`:''}</div></div>${hasTalent(t.id)?'<span class="pill good">Learned</span>':`<button onclick="buyTalent('${t.id}')" ${canTalent(t)?'':'disabled'}>Learn</button>`}</div>`).join('')}`).join('')}
+function validRewards(){const cap=tierCap();return {equip:Object.keys(state.equipment).filter(k=>!state.equipment[k].primary&&state.equipment[k].tier===0),slot:Object.keys(state.equipment).filter(k=>state.equipment[k].tier>0&&state.equipment[k].slots<3),upgrade:Object.keys(state.equipment).filter(k=>state.equipment[k].tier>0&&state.equipment[k].tier<Math.min(3,cap))}}
+function shopBaseCost(type,item){
+  const e=state.equipment[item];
+  if(type==='unlock') return 500; // Secondary unlock: Tier 1 + first slot
+  if(type==='slot'){
+    // Buying the 2nd slot is useful; buying the 3rd slot should be a bigger investment.
+    const nextSlot=e.slots+1;
+    return nextSlot===2 ? 450 : 900;
+  }
+  if(type==='upgrade'){
+    // Tier 2 is midgame; Tier 3 should feel like a major purchase.
+    const nextTier=e.tier+1;
+    return nextTier===2 ? 750 : 1500;
+  }
+  return 0;
+}
+function generateShop(){const v=validRewards(); let offers=[]; v.equip.forEach(i=>offers.push({type:'unlock',item:i,label:`Unlock ${i}`,sub:'Tier 1 + 1 slot',cost:shopDiscount(shopBaseCost('unlock',i),'unlock')})); v.slot.forEach(i=>offers.push({type:'slot',item:i,label:`+1 ${i} Slot`,sub:`Slots ${state.equipment[i].slots} → ${state.equipment[i].slots+1}`,cost:shopDiscount(shopBaseCost('slot',i),'slot')})); v.upgrade.forEach(i=>offers.push({type:'upgrade',item:i,label:`Upgrade ${i}`,sub:`Tier ${state.equipment[i].tier} → ${state.equipment[i].tier+1}`,cost:shopDiscount(shopBaseCost('upgrade',i),'upgrade')})); return shuffle(offers).slice(0,6+(hasTalent('biggerShop')?1:0)+(hasTalent('supplyChain')?1:0));}
+function ensureShop(){if(!Array.isArray(state.shop)||!state.shop.length) state.shop=generateShop();}
+function isOfferValid(o){const e=state.equipment[o.item]; if(!e)return false; if(o.type==='unlock')return e.tier===0; if(o.type==='slot')return e.tier>0&&e.slots<3; if(o.type==='upgrade')return e.tier>0&&e.tier<tierCap()&&e.tier<3; return false;}
+function buy(type,item){ensureShop(); const idx=state.shop.findIndex(o=>o.type===type&&o.item===item); const o=state.shop[idx]; if(!o)return alert('That shop offer is no longer available.'); const e=state.equipment[item]; const cost=o.cost; if(!isOfferValid(o))return alert('This purchase is no longer valid.'); if(state.gold<cost)return alert('Not enough Gold.'); state.gold-=cost; if(type==='unlock'){e.tier=1;e.slots=1;} if(type==='slot')e.slots++; if(type==='upgrade')e.tier++; state.shop.splice(idx,1); render(); alert(`Purchased: ${item}.
+
+Update your Phasmophobia loadout in-game before starting the next contract.`);}
+function rerollShop(){const cost=Math.ceil(state.level*100*(hasTalent('couponBook')?.8:1)); if(state.gold<cost)return alert(`Not enough Gold. Rerolling stock costs ${cost} Gold.`); if(!confirm(`Reroll shop stock for ${cost} Gold?`))return; state.gold-=cost; state.shop=generateShop(); render(); toast('Shop stock rerolled')}
+function renderShop(){ensureShop(); const rerollCost=Math.ceil(state.level*100*(hasTalent('couponBook')?.8:1)); document.getElementById('shop').innerHTML=`<div class="sectionTitle"><div><h2>Shop</h2><p>Spend Gold on deterministic progression when loot does not give what you want. Purchasing does not restock the shop.</p></div><span class="pill">${state.gold} Gold</span></div><div class="notice"><b>Reroll Stock:</b> Costs Level × 100 Gold. Current cost: <b>${rerollCost} Gold</b>. <button class="secondary" onclick="rerollShop()">Reroll Stock</button></div>${state.shop.length?state.shop.map(o=>`<div class="shopItem"><div><b>${o.label}</b><div class="small">${o.sub}</div></div><div><span class="pill warn">${o.cost} Gold</span> <button onclick="buy('${o.type}','${o.item}')">Buy</button></div></div>`).join(''):'<div class="empty">No current stock. Reroll the shop to generate new offers.</div>'}<p class="small">Shop stock remains fixed until you reroll it. Bought items are removed from the current stock, but no new offer replaces them automatically.</p>`}
+function renderRules(){document.getElementById('rules').innerHTML=`<h2>Rules & Instructions</h2><h3>Character Setup</h3><ul><li>Each player has their own character sheet.</li><li>Start at Level 1 with 0 Gold, 0 Talent Points, and Amateur recommended difficulty.</li><li>Primary gear starts at Tier 1 with 1 slot each.</li><li>Secondary gear starts at Tier 0 with 0 slots.</li></ul><h3>Contract Completion</h3><ul><li>After each investigation, click <b>Complete Contract</b>.</li><li>Enter the in-game reward money from the Phasmophobia results screen.</li><li>Mark whether the ghost was correct, whether your character survived, and whether it was a perfect investigation.</li><li>The button says <b>Roll Loot</b>. Results show EXP, Gold, difficulty penalty, level-ups, and one loot reward.</li><li>After a gear, slot, or upgrade loot result, update your in-game loadout and continue. Gold-only loot does not require a loadout update.</li></ul><h3>EXP, Gold, and Levels</h3><ul><li>EXP levels your character and unlocks higher recommended difficulties.</li><li>Gold is spent in the shop on equipment unlocks, slots, upgrades, and shop rerolls. Contract Gold is intentionally much lower than in-game money: about 12% before penalties and talents.</li><li>Each level grants 1 Talent Point.</li><li>Recommended difficulties: Lv1 Amateur, Lv5 Intermediate, Lv10 Professional, Lv20 Nightmare, Lv35 Insanity.</li></ul><h3>Multiplayer</h3><ul><li>You may join another player's game and use the host's gear.</li><li>You may play on the host's difficulty even if your character has not unlocked it.</li><li>For every difficulty tier above your recommended difficulty, EXP and Gold are reduced by 20%.</li><li>Loot still happens, but the loot table shifts toward Gold Cache.</li></ul><h3>Loot Tables</h3><ul><li>At recommended difficulty: 30% Equipment Unlock, 25% Slot Unlock, 15% Gear Upgrade, 30% Gold Cache.</li><li>+1 difficulty: 20% Equipment, 20% Slot, 10% Upgrade, 50% Gold.</li><li>+2 difficulties: 10% Equipment, 10% Slot, 10% Upgrade, 70% Gold.</li><li>+3 difficulties: 5% Equipment, 5% Slot, 5% Upgrade, 85% Gold.</li><li>+4 difficulties: 100% Gold Cache.</li><li>Never roll something already owned or maxed. Invalid categories are removed and remaining weights are normalized.</li></ul><h3>Equipment Rules</h3><ul><li>Equipment Unlock only targets locked secondary gear.</li><li>Unlocking secondary gear gives Tier 1 and 1 slot immediately.</li><li>Slot Unlock adds +1 slot to an owned item, up to 3 slots.</li><li>Gear Upgrade increases an owned item by one tier, up to Tier 3 and your current gear tier cap.</li></ul><h3>Gear Tier Unlocks</h3><ul><li>Tier 1 gear is available by default.</li><li>Tier 2 upgrades unlock after clearing 5 Professional-or-higher contracts.</li><li>Tier 3 upgrades unlock after clearing 5 Nightmare-or-higher contracts <b>after Tier 2 is already unlocked</b>.</li><li>Nightmare-or-higher clears completed before Tier 2 is unlocked are tracked in Progress, but they do not count toward the Tier 3 gear unlock.</li><li>A clear requires correct ghost identification and survival.</li><li>Perfect investigations are tracked as ★ but are not required for tier unlocks.</li></ul><h3>Shop</h3><ul><li>Purchasing an item does not restock the shop.</li><li>After buying gear, slots, or upgrades, update your Phasmophobia loadout in-game.</li><li>Rerolling shop stock costs your current Level × 100 Gold.</li><li>Shop prices scale by value: secondary unlocks cost 500 Gold, 2nd slots cost 450 Gold, 3rd slots cost 900 Gold, Tier 2 upgrades cost 750 Gold, and Tier 3 upgrades cost 1500 Gold before talent discounts.</li></ul><h3>Saving</h3><ul><li>The tracker autosaves invisibly in your browser.</li><li><b>Save Character</b> exports a portable JSON file.</li><li><b>Load Character</b> imports that JSON file.</li></ul>`}
+function showTab(id){document.querySelectorAll('.tabPanel').forEach(x=>x.classList.remove('active'));document.querySelectorAll('.tab').forEach(x=>x.classList.remove('active'));document.getElementById(id).classList.add('active');document.querySelector(`[data-tab="${id}"]`).classList.add('active')}
+function fillSelects(){document.getElementById('cMap').innerHTML=`<option value="">-- Please Select --</option>`+maps.map(m=>`<option>${m}</option>`).join('');document.getElementById('cDiff').innerHTML=difficulties.map(d=>`<option>${d}</option>`).join('')}
+function clearContractValidation(){['cMap','cMoney','cDiff'].forEach(id=>document.getElementById(id).classList.remove('invalid')); const box=document.getElementById('contractErrors'); if(box){box.style.display='none';box.innerHTML='';}}
+function showContractErrors(errors,fields=[]){clearContractValidation(); fields.forEach(id=>document.getElementById(id)?.classList.add('invalid')); const box=document.getElementById('contractErrors'); box.innerHTML=`<b>Please correct the following:</b><ul>${errors.map(e=>`<li>${e}</li>`).join('')}</ul>`; box.style.display='block';}
+function openContract(){fillSelects();clearContractValidation();document.getElementById('cMap').value='';document.getElementById('cDiff').value=difficulties[maxDifficultyIndex()];document.getElementById('cMoney').value='';document.getElementById('cCorrect').checked=true;document.getElementById('cSurvived').checked=true;document.getElementById('cPerfect').checked=false;document.getElementById('contractModal').style.display='flex'} function closeModal(id){document.getElementById(id).style.display='none'}
+function submitContract(){clearContractValidation();const map=cMap.value,diff=cDiff.value,rawMoney=+cMoney.value,correct=cCorrect.checked,survived=cSurvived.checked,perfect=cPerfect.checked,players=+cPlayers.value; const errors=[],fields=[]; if(!map){errors.push('Select a map.');fields.push('cMap');} if(!diff){errors.push('Select a difficulty.');fields.push('cDiff');} if(!Number.isFinite(rawMoney)||rawMoney<=0){errors.push('Reward Money must be greater than 0.');fields.push('cMoney');} else if(rawMoney>10000){errors.push('Reward Money must be 10,000 or less.');fields.push('cMoney');} if(perfect&&(!correct||!survived)){errors.push('A Perfect Investigation requires a correct ghost identification and surviving the contract.');} if(errors.length){showContractErrors(errors,fields);return;} const money=Math.floor(rawMoney); const capBefore=tierCap(); const diffIdx=difficulties.indexOf(diff); const above=Math.max(0,diffIdx-maxDifficultyIndex()); const penaltyStep=hasTalent('fieldVeteran')?.15:.2; const mult=Math.max(.2,1-penaltyStep*above); let exp=Math.floor(money*.5*mult), gold=Math.floor(money*.12*mult); if(hasTalent('fastLearner')) exp=Math.floor(exp*1.1); if(hasTalent('survivalTraining')&&survived) exp=Math.floor(exp*1.05); if(hasTalent('cleanCase')&&correct) exp=Math.floor(exp*1.05); if(hasTalent('perfectionist')&&perfect) exp=Math.floor(exp*1.1); if(hasTalent('negotiator')) gold=Math.floor(gold*1.1); if(hasTalent('mentor')&&players>1) exp=Math.floor(exp*1.05); if(perfect&&hasTalent('thorough')) gold+=25; if(correct&&survived&&hasTalent('caseCloser')) gold+=25; if(!survived) gold=0; state.records.contracts++; state.records.bestReward=Math.max(state.records.bestReward,money); state.exp+=exp; state.gold+=gold; let levels=0; while(state.exp>=expNeeded(state.level)){state.exp-=expNeeded(state.level);state.level++;state.talentPoints++;levels++;} const levelGoldBonus=(hasTalent('seasonedSpecialist')?75*levels:0); if(levelGoldBonus) state.gold+=levelGoldBonus;
+ const r=state.records.overall[diff], mr=state.records.maps[map][diff]; const clear=correct&&survived; if(clear){r.clears++;r.streak++;r.bestStreak=Math.max(r.bestStreak,r.streak);mr.clear=true;state.records.totalClears++; if(hasTalent('arsenal')&&state.records.totalClears%5===0) state.gold+=50; awardTierProgress(diff,map,capBefore); if(perfect){r.perfects++;mr.perfect=true;state.records.totalPerfects++;}} else r.streak=0; if(!survived){r.deaths++;state.records.maps[map].deaths++;mr.deaths++;state.records.totalDeaths++;}
+ const loot=rollLoot(above); applyLoot(loot); render(); closeModal('contractModal'); document.getElementById('resultBody').innerHTML=`<div class="grid three"><div class="mini"><span>EXP Earned</span><b>${exp}</b></div><div class="mini"><span>Gold Earned</span><b>${gold}</b></div><div class="mini"><span>Penalty</span><b>${above?'-'+Math.round((1-mult)*100)+'%':'None'}</b></div></div>${levels?`<div class="notice"><b>Level Up!</b> You gained ${levels} level${levels>1?'s':''} and ${levels} Talent Point${levels>1?'s':''}.${levelGoldBonus?` Seasoned Specialist: +${levelGoldBonus} Gold.`:''}</div>`:''}<div class="lootBanner">${loot.text}</div>${loot.type==='gold'?'':'<p><b>Update your loadout in-game and click continue.</b></p>'}`; document.getElementById('resultModal').style.display='flex'}
+function rollLoot(above){let t={...lootTables[Math.min(4,above)]}; if(above===0&&hasTalent('rareSalvage')){t.equip+=3;t.slot+=3;t.upgrade+=2;t.gold=Math.max(10,t.gold-8);} const v=validRewards(); const cats=[]; if(v.equip.length&&t.equip)cats.push(['equip',t.equip]); if(v.slot.length&&t.slot)cats.push(['slot',t.slot]); if(v.upgrade.length&&t.upgrade)cats.push(['upgrade',t.upgrade]); cats.push(['gold',t.gold||100]); const cat=weighted(cats); if(cat==='equip'){const item=pick(v.equip);return{type:'equip',item,text:`🔓 Equipment Unlocked: ${item} — Tier 1 + 1 slot`}} if(cat==='slot'){const item=pick(v.slot);return{type:'slot',item,text:`🎒 Slot Unlock: ${item} +1 slot`}} if(cat==='upgrade'){const item=pick(v.upgrade);return{type:'upgrade',item,text:`⬆️ Gear Upgrade: ${item} Tier ${state.equipment[item].tier} → ${state.equipment[item].tier+1}`}} let base=pick([25,50,85,140]); if(hasTalent('luckyFind'))base=Math.floor(base*1.15); if(hasTalent('treasureHunter'))base=Math.floor(base*1.1); if(hasTalent('salvager'))base=Math.max(base,60); if(hasTalent('jackpot')&&Math.random()<.05)base*=2; const reduced=[1,.75,.55,.4,.25][Math.min(4,above)]; const amt=Math.floor(base*reduced); return{type:'gold',gold:amt,text:`💰 Gold Cache: +${amt} Gold`}}
+function applyLoot(l){if(l.type==='equip'){state.equipment[l.item].tier=1;state.equipment[l.item].slots=1;} if(l.type==='slot')state.equipment[l.item].slots++; if(l.type==='upgrade')state.equipment[l.item].tier++; if(l.type==='gold')state.gold+=l.gold;}
+function weighted(arr){const total=arr.reduce((s,x)=>s+x[1],0);let r=Math.random()*total;for(const [k,w] of arr){r-=w;if(r<=0)return k}return arr.at(-1)[0]} function pick(a){return a[Math.floor(Math.random()*a.length)]} function shuffle(a){return a.map(x=>[Math.random(),x]).sort((a,b)=>a[0]-b[0]).map(x=>x[1])}
+function saveToFile(){const blob=new Blob([JSON.stringify(state,null,2)],{type:'application/json'});const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=(state.name||'phasmo-character').toLowerCase().replace(/[^a-z0-9]+/g,'-')+'.json';a.click();URL.revokeObjectURL(a.href);toast('Character file saved')}
+function loadFromFile(e){const f=e.target.files[0]; if(!f)return; const r=new FileReader(); r.onload=()=>{try{state=JSON.parse(r.result); migrate(); render(); toast('Character loaded')}catch(err){alert('Could not load that save file.')}}; r.readAsText(f); e.target.value=''}
+function newCharacter(){if(confirm('Start a new character? Your browser autosave will be replaced. Export first if you want a backup.')){state=newGame();render();toast('New character created')}}
+function migrate(){state.records??=newGame().records; state.talents??={}; state.equipment??=newGame().equipment; state.records.contracts??=0; state.records.totalDeaths??=0; state.records.totalClears??=0; state.records.totalPerfects??=0; state.records.bestReward??=0; state.shop??=[]; maps.forEach(m=>{state.records.maps[m]??={deaths:0}; difficulties.forEach(d=>state.records.maps[m][d]??={clear:false,perfect:false,deaths:0});}); difficulties.forEach(d=>state.records.overall[d]??={clears:0,perfects:0,deaths:0,streak:0,bestStreak:0}); ensureTierProgress(); if(state.gearTierProgress.professionalCount===0) state.gearTierProgress.professionalCount=(state.records.overall?.Professional?.clears||0)+(state.records.overall?.Nightmare?.clears||0)+(state.records.overall?.Insanity?.clears||0); if(state.gearTierProgress.nightmareAfterTier2Count===0 && tier2Unlocked()) state.gearTierProgress.nightmareAfterTier2Count=(state.records.overall?.Nightmare?.clears||0)+(state.records.overall?.Insanity?.clears||0);}
+function toast(msg){const t=document.getElementById('toast');t.textContent=msg;t.style.display='block';clearTimeout(window.toastTimer);window.toastTimer=setTimeout(()=>t.style.display='none',2200)}
+function escapeHtml(s){return String(s).replace(/[&<>'"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[c]))}
+fillSelects();migrate();render();
+</script>
+</body>
+</html>
