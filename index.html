@@ -74,8 +74,8 @@ input.invalid,select.invalid{border-color:var(--bad);box-shadow:0 0 0 2px rgba(2
 <div class="wrap">
 <header>
   <div>
-    <h1>Phasmophobia RPG v1.0</h1>
-    <div class="sub">A companion RPG progression tracker for Phasmophobia.</div>
+    <h1>Phasmophobia RPG v1.0.1</h1>
+    <div class="sub">Companion RPG campaign tracker for Phasmophobia</div>
   </div>
   <div class="actions">
     <button class="primary" onclick="openContract()">Complete Contract</button>
@@ -143,6 +143,9 @@ const DIFFS=["Amateur","Intermediate","Professional","Nightmare","Insanity"];
 const MAPS=["Tanglewood Drive","Edgefield Road","Ridgeview Court","Willow Street","Grafton Farmhouse","Bleasdale Farmhouse","Camp Woodwind","Maple Lodge Campsite","Prison","Brownstone High School","Sunny Meadows","Sunny Meadows Restricted","Point Hope"];
 const PRIMARY=["EMF Reader","Flashlight","UV Light","Spirit Box","Ghost Writing Book","Thermometer","DOTS Projector","Video Camera"];
 const SECONDARY=["Salt","Incense","Igniter","Firelight","Crucifix","Motion Sensor","Sound Sensor","Tripod","Head Gear","Sanity Medication","Parabolic Microphone"];
+const CURSED_ITEMS=["Music Box","Ouija Board","Tarot Cards","Haunted Mirror","Voodoo Doll","Summoning Circle","Monkey Paw"];
+const ITEM_CAPS={"D.O.T.S Projector":2,"DOTS Projector":2,"EMF Reader":2,"Flashlight":4,"Ghost Writing Book":2,"Spirit Box":2,"Thermometer":2,"UV Light":2,"Video Camera":4,"Crucifix":2,"Salt":3,"Incense":4,"Igniter":4,"Firelight":4,"Motion Sensor":4,"Sound Sensor":4,"Tripod":4,"Head Gear":4,"Sanity Medication":4,"Parabolic Microphone":2};
+function itemCap(n){return ITEM_CAPS[n]||3}
 const LEVEL_DIFF=[["Amateur",1],["Intermediate",5],["Professional",10],["Nightmare",20],["Insanity",35]];
 const TALENTS=[
  ["keenEye","Keen Eye","Bone and perfect-style play grants +5% Gold.",1],
@@ -168,18 +171,40 @@ const TALENTS=[
  ["experience","Experience","+5% EXP from every contract.",1],
  ["fastLearner","Fast Learner","First contract after loading grants +50 EXP.",1],
  ["survivor","Survivor","Surviving grants +5% EXP.",1],
- ["mapExpert","Map Expert","First clear of a map grants +100 Gold.",1],
+ ["cartographer","Cartographer","The first successful contract completed on each map each day grants +100 Gold.",1],
  ["seasonedSpecialist","Seasoned Specialist","Each level-up grants +75 Gold.",2],
+ ["cursedMusicBox","Cursed Attunement: Music Box","You may use the Music Box during contracts.",1,"Cursed Items"],
+ ["cursedOuijaBoard","Cursed Attunement: Ouija Board","You may use the Ouija Board during contracts.",1,"Cursed Items"],
+ ["cursedTarotCards","Cursed Attunement: Tarot Cards","You may use Tarot Cards during contracts.",1,"Cursed Items"],
+ ["cursedHauntedMirror","Cursed Attunement: Haunted Mirror","You may use the Haunted Mirror during contracts.",1,"Cursed Items"],
+ ["cursedVoodooDoll","Cursed Attunement: Voodoo Doll","You may use the Voodoo Doll during contracts.",1,"Cursed Items"],
+ ["cursedSummoningCircle","Cursed Attunement: Summoning Circle","You may use the Summoning Circle during contracts.",1,"Cursed Items"],
+ ["cursedMonkeyPaw","Cursed Attunement: Monkey Paw","You may use the Monkey Paw during contracts.",1,"Cursed Items"],
 ];
 const BASE_TABS=[
  ["getting","Getting Started"],["character","Character"],["equipment","Equipment"],["talents","Talents"],["progress","Progress"],["shop","Shop"],["rules","Rules"]
 ];
+function todayKey(){return new Date().toLocaleDateString('en-CA')}
+function resetCartographerDaily(){
+ state.cartographerDaily ||= {date:todayKey(),maps:{}};
+ if(state.cartographerDaily.date !== todayKey()) state.cartographerDaily = {date:todayKey(),maps:{}};
+}
+function nextDailyResetText(){
+ const now=new Date(); const next=new Date(now); next.setHours(24,0,0,0);
+ const ms=next-now, h=Math.floor(ms/3600000), m=Math.floor((ms%3600000)/60000);
+ return `${h}h ${m}m`;
+}
 function fresh(){
  let eq={}; PRIMARY.forEach(n=>eq[n]={tier:1,slots:1,primary:true}); SECONDARY.forEach(n=>eq[n]={tier:0,slots:0,primary:false});
  let prog={}; MAPS.forEach(m=>{prog[m]={}; DIFFS.forEach(d=>prog[m][d]={clears:0,perfects:0,deaths:0})});
- return {name:"Investigator",level:1,exp:0,gold:0,tp:0,equipment:eq,progress:prog,diffStats:{},talents:{},shop:[],lastLoot:"None",contracts:0,firstSession:true};
+ return {name:"Investigator",level:1,exp:0,gold:0,tp:0,equipment:eq,progress:prog,diffStats:{},talents:{},shop:[],lastLoot:"None",contracts:0,firstSession:true,cartographerDaily:{date:todayKey(),maps:{}}};
 }
 let state=JSON.parse(localStorage.getItem("phasmoRpgV1")||"null")||fresh();
+state.cartographerDaily ||= {date:todayKey(),maps:{}};
+resetCartographerDaily();
+// Migration support for older saved characters.
+PRIMARY.forEach(n=>{state.equipment[n] ||= {tier:1,slots:1,primary:true}; if(state.equipment[n].slots>itemCap(n)) state.equipment[n].slots=itemCap(n);});
+SECONDARY.forEach(n=>{state.equipment[n] ||= {tier:0,slots:0,primary:false}; if(state.equipment[n].slots>itemCap(n)) state.equipment[n].slots=itemCap(n);});
 DIFFS.forEach(d=>state.diffStats[d] ||= {clears:0,perfects:0,deaths:0});
 function expNeed(l=state.level){return 100+l*50}
 function maxDiff(){let out="Amateur"; LEVEL_DIFF.forEach(([d,l])=>{if(state.level>=l)out=d}); return out}
@@ -194,7 +219,7 @@ function countClearsAtOrAbove(d){
  for(const m of MAPS) for(let x=i;x<DIFFS.length;x++) c+=state.progress[m][DIFFS[x]].clears||0;
  return c;
 }
-function saveLocal(){localStorage.setItem("phasmoRpgV1",JSON.stringify(state))}
+function saveLocal(){resetCartographerDaily();localStorage.setItem("phasmoRpgV1",JSON.stringify(state))}
 function money(n){return Math.floor(n).toLocaleString()}
 function hasTalent(k){return !!state.talents[k]}
 function discountFor(type){
@@ -211,6 +236,7 @@ function price(item){
  if(type==="unlock") p=500;
  if(type==="slot") p=(e.slots+1)*450;
  if(type==="tier") p=(e.tier+1)*750;
+ if(type==="talentPoint") p=2500 + state.level*150;
  return Math.max(50,Math.round(p*(1-discountFor(type))));
 }
 function showTab(id){
@@ -245,15 +271,26 @@ function renderGetting(){
  <li>Equip one of every <strong>Tier 1 primary item</strong>.</li>
  <li>Do not equip any secondary equipment.</li>
  <li>Start a new character in this tracker.</li>
- </ul>
+ <li><strong>Cursed Objects:</strong> Your character must learn the corresponding Cursed Object Talent before it can be used in game.</li></ul>
  <h3>Completing Contracts</h3>
  <ol><li>Play a contract in Phasmophobia.</li><li>Click <strong>Complete Contract</strong>.</li><li>Enter the map, difficulty, in-game reward money, and results.</li><li>Click <strong>Roll Loot</strong>.</li><li>If loot unlocks or upgrades equipment, update your in-game loadout before the next contract.</li></ol>
  <h3>Goal</h3>
  <p>Grow your investigator from a rookie with only Tier 1 primary gear into a veteran with fully upgraded equipment, completed talent trees, and mastery over every difficulty.</p>
  </div></div>`;
 }
+function cursedTalentKey(item){return "cursed"+item.replace(/[^A-Za-z]/g,"")}
+function usableCursedItems(){return CURSED_ITEMS.filter(item=>hasTalent(cursedTalentKey(item)))}
+function cartographerHtml(){
+ if(!hasTalent("cartographer")) return "";
+ resetCartographerDaily();
+ const done=MAPS.filter(m=>state.cartographerDaily.maps[m]).length;
+ const rows=MAPS.map(m=>`<tr><td>${state.cartographerDaily.maps[m]?"✓":"—"}</td><td>${m}</td><td>${state.cartographerDaily.maps[m]?"Claimed":"+100 Gold available"}</td></tr>`).join("");
+ return `<div class="card span12"><h2>Cartographer Daily</h2><p class="small">First successful clear on each map today grants a flat +100 Gold. Next reset: <strong>${nextDailyResetText()}</strong></p><p><strong>${done}/${MAPS.length}</strong> claimed · Remaining bonus Gold: <strong>${money((MAPS.length-done)*100)}</strong></p><table><tr><th></th><th>Map</th><th>Status</th></tr>${rows}</table></div>`;
+}
 function renderCharacter(){
  const need=expNeed(), pct=Math.min(100,state.exp/need*100), md=maxDiff(), cap=tierCap();
+ const cursed=usableCursedItems();
+ const cursedHtml=cursed.length ? cursed.map(x=>'<span class="pill purple">'+x+'</span>').join(" ") : '<span class="small">None unlocked through talents.</span>';
  let next=LEVEL_DIFF.find(([d,l])=>state.level<l);
  let milestone=next?`Reach Level ${next[1]} to unlock ${next[0]}.`:"Recommended difficulty maxed. Master Insanity and finish your build.";
  const t2=countClearsAtOrAbove("Professional"), t3=countClearsAtOrAbove("Nightmare");
@@ -271,24 +308,27 @@ function renderCharacter(){
  <p><span class="label">Gear Tier Unlocks</span><br>Max Gear Tier: <strong>Tier ${cap}</strong></p>
  <p class="small">Tier 2: Professional or higher clears ${Math.min(t2,5)}/5<br>Tier 3: ${cap>=2?`Nightmare or higher clears ${Math.min(t3,5)}/5`:"Locked until Tier 2 is unlocked"}</p>
  </div>
- <div class="card span6"><h2>Latest Loot</h2><p style="font-size:22px;font-weight:900">${state.lastLoot}</p></div>
- <div class="card span6"><h2>Summary</h2><p>Contracts: <strong>${state.contracts}</strong></p><p>Owned Secondary Gear: <strong>${SECONDARY.filter(x=>state.equipment[x].tier>0).length}/${SECONDARY.length}</strong></p><p>Talents Owned: <strong>${Object.keys(state.talents).length}/${TALENTS.length}</strong></p></div>
+ <div class="card span4"><h2>Latest Loot</h2><p style="font-size:22px;font-weight:900">${state.lastLoot}</p></div>
+ <div class="card span4"><h2>Usable Cursed Items</h2><p>${cursedHtml}</p></div>
+ <div class="card span4"><h2>Summary</h2><p>Contracts: <strong>${state.contracts}</strong></p><p>Owned Secondary Gear: <strong>${SECONDARY.filter(x=>state.equipment[x].tier>0).length}/${SECONDARY.length}</strong></p><p>Talents Owned: <strong>${Object.keys(state.talents).length}/${TALENTS.length}</strong></p></div>
+ ${cartographerHtml()}
  </div>`;
 }
 function gearCard(n){
  const e=state.equipment[n], locked=e.tier===0;
  return `<div class="gear ${locked?'locked':''}"><div class="name">${n}</div><div class="small">${e.primary?'Primary Gear':'Secondary Gear'}</div><div class="meta">
  <span class="pill ${locked?'bad':'good'}">${locked?'Locked':'Tier '+e.tier}</span>
- <span class="pill">${e.slots}/3 Slots</span>
+ <span class="pill">${e.slots}/${itemCap(n)} Slots</span>
  </div></div>`;
 }
 function renderEquipment(){
  document.getElementById("equipment").innerHTML=`<div class="grid"><div class="card span12"><h2>Primary Gear</h2><div class="equipgrid">${PRIMARY.map(gearCard).join("")}</div></div><div class="card span12"><h2>Secondary Gear</h2><div class="equipgrid">${SECONDARY.map(gearCard).join("")}</div></div></div>`;
 }
 function renderTalents(){
- document.getElementById("talents").innerHTML=`<div class="card"><h2>Talents (${state.tp})</h2><p class="small">Earn Talent Points by leveling up. Each talent costs its listed TP.</p><div class="talentgrid">${TALENTS.map(t=>{
+ const groups={}; TALENTS.forEach(t=>{const g=t[4]||"General"; (groups[g] ||= []).push(t);});
+ document.getElementById("talents").innerHTML=`<div class="card"><h2>Talents (${state.tp})</h2><p class="small">Earn Talent Points by leveling up. Each talent costs its listed TP. Cursed Item talents unlock permission to use that cursed possession during contracts.</p>${Object.entries(groups).map(([group,list])=>`<h3>${group}</h3><div class="talentgrid">${list.map(t=>{
   const owned=hasTalent(t[0]); return `<div class="talent ${owned?'owned':''}"><h3>${t[1]} <span class="pill">${t[3]} TP</span></h3><p class="small">${t[2]}</p><button ${owned||state.tp<t[3]?'disabled':''} onclick="buyTalent('${t[0]}')">${owned?'Owned':'Learn'}</button></div>`
- }).join("")}</div></div>`;
+ }).join("")}</div>`).join("")}</div>`;
 }
 function renderProgress(){
  let diffRows=DIFFS.map(d=>`<tr><td>${d}</td><td>${state.diffStats[d].clears}</td><td>${state.diffStats[d].perfects}</td><td>${state.diffStats[d].deaths}</td></tr>`).join("");
@@ -302,9 +342,10 @@ function validShopItems(){
  let items=[], cap=tierCap();
  for(const [n,e] of Object.entries(state.equipment)){
   if(!e.primary && e.tier===0) items.push({type:"unlock",target:n,label:`Unlock ${n}`,desc:"Tier 1 + 1 slot"});
-  if(e.tier>0 && e.slots<3) items.push({type:"slot",target:n,label:`+1 ${n} Slot`,desc:`Slots ${e.slots} → ${e.slots+1}`});
+  if(e.tier>0 && e.slots<itemCap(n)) items.push({type:"slot",target:n,label:`+1 ${n} Slot`,desc:`Slots ${e.slots} → ${e.slots+1}`});
   if(e.tier>0 && e.tier<Math.min(3,cap)) items.push({type:"tier",target:n,label:`Upgrade ${n}`,desc:`Tier ${e.tier} → ${e.tier+1}`});
  }
+ items.push({type:"talentPoint",target:"Talent Point",label:"Buy Talent Point",desc:"Gain +1 unspent Talent Point"});
  return items;
 }
 function restock(){
@@ -318,18 +359,20 @@ function renderShop(){
 }
 function renderRules(){
  document.getElementById("rules").innerHTML=`<div class="card rules"><h2>Rules Reference</h2>
- <h3>Character</h3><ul><li>Start at Level 1 with Tier 1 primary gear and one slot each.</li><li>Secondary gear starts locked at Tier 0 with 0 slots.</li><li>Level gates recommended difficulty: Lv1 Amateur, Lv5 Intermediate, Lv10 Professional, Lv20 Nightmare, Lv35 Insanity.</li></ul>
+ <h3>Character</h3><ul><li>Start at Level 1 with Tier 1 primary gear and one slot each.</li><li>Slot caps follow Phasmophobia item limits instead of a universal cap.</li><li>Secondary gear starts locked at Tier 0 with 0 slots.</li><li>Level gates recommended difficulty: Lv1 Amateur, Lv5 Intermediate, Lv10 Professional, Lv20 Nightmare, Lv35 Insanity.</li></ul>
  <h3>Rewards</h3><ul><li>Enter the in-game reward money after each contract. The tracker converts it into reduced RPG Gold and EXP.</li><li>Correct ghost and survival matter for clears. Deaths are tracked.</li><li>Perfect Investigation requires correct ghost and survival.</li></ul>
  <h3>Loot</h3><ul><li>Loot is always awarded. At your recommended difficulty the table is 30% Equipment Unlock, 25% Slot Unlock, 15% Gear Upgrade, 30% Gold Cache.</li><li>Playing above your recommended difficulty shifts the loot pool toward Gold.</li><li>Rewards never roll something you already own or cannot use.</li><li>Equipment Unlock means Tier 1 + 1 slot for a locked secondary item.</li></ul>
  <h3>Gear Tier Unlocks</h3><ul><li>Tier 1 is available by default.</li><li>Tier 2 upgrades unlock after 5 Professional-or-higher clears.</li><li>Tier 3 upgrades unlock after 5 Nightmare-or-higher clears, but only after Tier 2 is unlocked.</li></ul>
- <h3>Shop</h3><ul><li>Gold buys equipment unlocks, gear upgrades, and slot unlocks.</li><li>Purchases do not restock the shop.</li><li>Reroll stock costs Player Level × 100 Gold.</li></ul>
+ <h3>Shop</h3><ul><li>Gold buys equipment unlocks, gear upgrades, slot unlocks, and occasional Talent Points.</li><li>Purchases do not restock the shop.</li><li>Reroll stock costs Player Level × 100 Gold.</li></ul>
+ <h3>Cursed Items</h3><ul><li>Cursed possessions require their matching Cursed Item talent before your character may use them.</li><li>Unlocked cursed items are shown on the Character page.</li></ul>
+ <h3>Cartographer</h3><ul><li>Cartographer grants +100 Gold for the first successful clear on each map each day.</li><li>This bonus is flat and is not increased by other Gold talents.</li><li>When unlocked, daily map progress appears on the Character page.</li></ul>
  <h3>Multiplayer</h3><ul><li>Each player tracks their own character.</li><li>You may use the host's gear, even if your character has not unlocked it.</li><li>Playing above your recommended difficulty shifts loot toward reduced Gold instead of equipment progression.</li></ul>
  </div>`;
 }
 function buyTalent(k){let t=TALENTS.find(x=>x[0]===k); if(!t||state.talents[k]||state.tp<t[3])return; state.tp-=t[3]; state.talents[k]=true; render();}
 function buyShop(i){
  const it=state.shop[i], p=price(it); if(!it||state.gold<p)return; state.gold-=p; applyReward(it); state.shop.splice(i,1);
- document.getElementById("shopBody").innerHTML=`<p><strong>${it.label}</strong></p><p>Update your loadout in-game before your next contract.</p>`;
+ document.getElementById("shopBody").innerHTML=`<p><strong>${it.label}</strong></p>${it.type==="talentPoint"?"<p>You gained +1 Talent Point.</p>":"<p>Update your loadout in-game before your next contract.</p>"}`;
  openModal("shopModal"); render();
 }
 function rerollShop(){
@@ -337,9 +380,10 @@ function rerollShop(){
  if(state.gold<cost){alert("Not enough Gold.");return} state.gold-=cost; restock(); render();
 }
 function applyReward(r){
+ if(r.type==="talentPoint"){state.tp++; state.lastLoot="Talent Point +1"; return;}
  const e=state.equipment[r.target];
  if(r.type==="unlock"){e.tier=1;e.slots=1;state.lastLoot=`Unlocked ${r.target}`;}
- if(r.type==="slot"){e.slots=Math.min(3,e.slots+1);state.lastLoot=`+1 ${r.target} Slot`;}
+ if(r.type==="slot"){e.slots=Math.min(itemCap(r.target),e.slots+1);state.lastLoot=`+1 ${r.target} Slot`;}
  if(r.type==="tier"){e.tier=Math.min(3,e.tier+1);state.lastLoot=`${r.target} Tier ${e.tier}`;}
 }
 function openModal(id){document.getElementById(id).classList.add("active")}
@@ -356,6 +400,7 @@ function openContract(){
 function clearValidation(){document.getElementById("contractErrors").style.display="none"; document.querySelectorAll("#contractModal .invalid").forEach(x=>x.classList.remove("invalid"))}
 function submitContract(){
  clearValidation();
+ resetCartographerDaily();
  const map=document.getElementById("cMap"), diff=document.getElementById("cDiff"), moneyIn=document.getElementById("cMoney");
  const val=Number(moneyIn.value), correct=document.getElementById("cCorrect").checked, alive=document.getElementById("cAlive").checked, perfect=document.getElementById("cPerfect").checked;
  let errs=[];
@@ -364,26 +409,38 @@ function submitContract(){
  if(perfect && (!correct || !alive)){errs.push("A Perfect Investigation requires correct ghost identification and surviving.");}
  if(errs.length){let e=document.getElementById("contractErrors"); e.innerHTML="<strong>Please correct:</strong><ul><li>"+errs.join("</li><li>")+"</li></ul>"; e.style.display="block"; return;}
  const rec=diffIndex(maxDiff()), played=diffIndex(diff.value), above=Math.max(0,played-rec);
- let exp=Math.floor(val*.32), gold=Math.floor(val*.16);
- if(correct){exp+=30; gold+=20}
- if(alive){exp+=20}
- if(perfect){exp+=50; gold+=50+(hasTalent("veteranInvestigator")?100:0)}
- if(hasTalent("photographer")||hasTalent("experience")) exp=Math.floor(exp*1.05);
- if(hasTalent("survivor")&&alive) exp=Math.floor(exp*1.05);
- if(hasTalent("thorough")) gold=Math.floor(gold*1.05);
- exp=Math.floor(exp*Math.max(.2,1-.2*above));
- gold=Math.floor(gold*Math.max(.2,1-.2*above));
- if(hasTalent("fastLearner")&&state.firstSession){exp+=50; state.firstSession=false}
- const firstClear=state.progress[map.value][diff.value].clears===0 && correct && alive;
- if(firstClear && hasTalent("mapExpert")) gold+=100;
- state.exp+=exp; state.gold+=gold; state.contracts++;
- if(correct&&alive){state.progress[map.value][diff.value].clears++; state.diffStats[diff.value].clears++}
+ let expBase=Math.floor(val*.32), goldBase=Math.floor(val*.22);
+ let expBonus=0, goldBonus=0, talentLines=[];
+ if(correct){expBonus+=30; goldBonus+=30}
+ if(alive){expBonus+=20}
+ if(perfect){expBonus+=50; goldBonus+=75}
+ if(perfect && hasTalent("veteranInvestigator")){goldBonus+=100; talentLines.push("Veteran Investigator: +100 Gold");}
+ let expBeforeTalents=expBase+expBonus, goldBeforeTalents=goldBase+goldBonus;
+ let expAfterTalents=expBeforeTalents, goldAfterTalents=goldBeforeTalents;
+ if(hasTalent("photographer")){ const before=expAfterTalents; expAfterTalents=Math.floor(expAfterTalents*1.05); talentLines.push(`Photographer: +${expAfterTalents-before} EXP`); }
+ if(hasTalent("experience")){ const before=expAfterTalents; expAfterTalents=Math.floor(expAfterTalents*1.05); talentLines.push(`Experience: +${expAfterTalents-before} EXP`); }
+ if(hasTalent("survivor")&&alive){ const before=expAfterTalents; expAfterTalents=Math.floor(expAfterTalents*1.05); talentLines.push(`Survivor: +${expAfterTalents-before} EXP`); }
+ if(hasTalent("thorough")){ const before=goldAfterTalents; goldAfterTalents=Math.floor(goldAfterTalents*1.05); talentLines.push(`Thorough: +${goldAfterTalents-before} Gold`); }
+ let exp=expAfterTalents, gold=goldAfterTalents;
+ const penalty=Math.max(.2,1-.2*above);
+ if(above>0){ exp=Math.floor(exp*penalty); gold=Math.floor(gold*penalty); talentLines.push(`Above recommended difficulty: ${Math.round(penalty*100)}% EXP/Gold`); }
+ if(hasTalent("fastLearner")&&state.firstSession){exp+=50; state.firstSession=false; talentLines.push("Fast Learner: +50 EXP");}
+ let cartographerBonus=0;
+ const successfulClear=correct && alive;
+ if(successfulClear && hasTalent("cartographer") && !state.cartographerDaily.maps[map.value]){
+  cartographerBonus=100;
+  state.cartographerDaily.maps[map.value]=true;
+ }
+ state.exp+=exp; state.gold+=gold+cartographerBonus; state.contracts++;
+ if(successfulClear){state.progress[map.value][diff.value].clears++; state.diffStats[diff.value].clears++}
  if(perfect){state.progress[map.value][diff.value].perfects++; state.diffStats[diff.value].perfects++}
  if(!alive){state.progress[map.value][diff.value].deaths++; state.diffStats[diff.value].deaths++}
  const loot=rollLoot(above); let loadoutMsg = loot.type==="gold" ? "" : "<p class='warn'>Update your loadout in-game and click Continue.</p>";
  levelUp();
  closeModal("contractModal");
- document.getElementById("resultBody").innerHTML=`<p><strong>You earned ${money(exp)} EXP and ${money(gold)} Gold!</strong></p><p>Bonus Loot: <strong>${loot.text}</strong></p>${loadoutMsg}`;
+ const talentHtml = talentLines.length ? `<h3>Talent & Modifier Bonuses</h3><ul>${talentLines.map(x=>`<li>${x}</li>`).join("")}</ul>` : "";
+ const cartHtml = cartographerBonus ? `<p><strong>🗺 Cartographer Bonus:</strong> +${money(cartographerBonus)} Gold</p>` : "";
+ document.getElementById("resultBody").innerHTML=`<p><strong>You earned ${money(exp)} EXP and ${money(gold)} Gold!</strong></p>${talentHtml}${cartHtml}<p>Bonus Loot: <strong>${loot.text}</strong></p>${loadoutMsg}`;
  openModal("resultModal"); render();
 }
 function levelUp(){
