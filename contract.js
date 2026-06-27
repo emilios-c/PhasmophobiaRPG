@@ -1,6 +1,6 @@
 import { DIFFICULTIES, MAPS, DAILY_GOLD, mapByName } from "./data.js";
 import { classById } from "./classes.js";
-import { recommendedDifficulty, difficultyIndex, addExpAndLevel } from "./progression.js";
+import { recommendedDifficulty, difficultyIndex, addExpAndLevel, expNeeded } from "./progression.js";
 import { rollLoot, maybeJackpot } from "./loot.js";
 import { restockShop } from "./shop.js";
 
@@ -167,6 +167,11 @@ export function submitContract(state, input) {
     input,
     exp: finalExp,
     gold: finalGold,
+    totals: {
+      exp: state.character.exp,
+      expNeeded: expNeeded(state.character.level),
+      gold: state.character.gold
+    },
     breakdown,
     loot,
     shouldUpdateLoadout: loot.type !== "gold"

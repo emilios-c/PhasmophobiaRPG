@@ -1,4 +1,4 @@
-# Phasmophobia RPG v1.1.0
+# Phasmophobia RPG v1.1.1
 
 A companion RPG progression tracker for Phasmophobia.
 
@@ -30,3 +30,10 @@ https://<your-username>.github.io/<repo-name>/
 ## Notes
 
 Saves are stored in browser localStorage and can also be exported/imported as JSON.
+
+## v1.1.1
+
+- Compact reward modal spacing.
+- Added EXP/Gold totals to Contract Complete screen.
+- Added section dividers to reward breakdown.
+- Loot now identifies tier for unlocks/upgrades, e.g. `(Tier 1) Firelight`.

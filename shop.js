@@ -81,6 +81,6 @@ export function applyShopItem(state, item) {
   if (item.type === "tier") eq.tier += 1;
 
   const def = equipmentById(item.target);
-  state.stats.lastLoot = item.type === "unlock" ? `Unlocked ${def.name}` :
-    item.type === "slot" ? `+1 ${def.name} Slot` : `${def.name} Tier ${eq.tier}`;
+  state.stats.lastLoot = item.type === "unlock" ? `(Tier 1) ${def.name}` :
+    item.type === "slot" ? `+1 ${def.name} Slot` : `(Tier ${eq.tier}) ${def.name}`;
 }

@@ -114,3 +114,37 @@ input.invalid, select.invalid { border-color: var(--bad); box-shadow: 0 0 0 2px 
   .stat-grid { grid-template-columns: repeat(2, 1fr); }
   .form-grid { grid-template-columns: 1fr; }
 }
+
+
+/* v1.1.1 compact reward modal */
+.reward-summary {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+  margin-bottom: 10px;
+}
+.reward-summary .stat {
+  padding: 9px 10px;
+}
+.reward-summary .value {
+  font-size: 22px;
+}
+.section-divider {
+  border: 0;
+  border-top: 1px solid var(--line);
+  margin: 8px 0;
+}
+.breakdown.compact {
+  gap: 6px;
+}
+.breakdown.compact h3 {
+  margin: 4px 0 2px;
+  font-size: 16px;
+}
+.breakdown.compact .breakdown-row {
+  padding: 4px 0;
+  font-size: 14px;
+}
+.breakdown.compact p {
+  margin: 4px 0;
+}
