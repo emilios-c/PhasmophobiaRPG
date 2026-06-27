@@ -74,7 +74,7 @@ input.invalid,select.invalid{border-color:var(--bad);box-shadow:0 0 0 2px rgba(2
 <div class="wrap">
 <header>
   <div>
-    <h1>Phasmophobia RPG v1.0.7</h1>
+    <h1>Phasmophobia RPG v1.0.9</h1>
     <div class="sub">Companion RPG campaign tracker for Phasmophobia</div>
   </div>
   <div class="actions">
@@ -156,7 +156,7 @@ input.invalid,select.invalid{border-color:var(--bad);box-shadow:0 0 0 2px rgba(2
 </div>
 
 <script>
-const SAVE_VERSION='1.0.7';
+const SAVE_VERSION='1.0.9';
 const DIFFS=["Amateur","Intermediate","Professional","Nightmare","Insanity"];
 const MAPS=["Tanglewood Drive","Edgefield Road","Ridgeview Court","Willow Street","Grafton Farmhouse","Bleasdale Farmhouse","Camp Woodwind","Maple Lodge Campsite","Prison","Brownstone High School","Sunny Meadows","Sunny Meadows Restricted","Point Hope"];
 
@@ -255,7 +255,7 @@ function ensureDiffStats(diffName){
 
 function repairClassFields(){
   state.classKey ||= "generalist";
-  if(!CLASS_DATA[state.classKey]) state.classKey="generalist";
+  if(!CLASS_DATA[state.classKey]) state.classKey = "generalist";
   state.specialistItem ||= null;
   state.talents ||= {};
   applyClassStartingBenefits();
@@ -390,13 +390,13 @@ function classKey(){ return state.classKey || "generalist"; }
 function playerClass(){ return CLASS_DATA[classKey()] || CLASS_DATA.generalist; }
 function dailyBonusForMap(mapName){ return DAILY_GOLD[MAP_SIZE[mapName] || "small"] || 100; }
 function unlockStartingGear(item){
-  if(!item || !state.equipment[item]) return;
+  if(!item || !state.equipment || !state.equipment[item]) return;
   state.equipment[item].tier = Math.max(state.equipment[item].tier||0, 1);
   state.equipment[item].slots = Math.max(state.equipment[item].slots||0, 1);
 }
 function applyClassStartingBenefits(){
   state.classKey ||= "generalist";
-  if(!CLASS_DATA[state.classKey]) state.classKey="generalist";
+  if(!CLASS_DATA[state.classKey]) state.classKey = "generalist";
   state.specialistItem ||= null;
   state.talents ||= {};
   (playerClass().gear||[]).forEach(unlockStartingGear);
@@ -419,8 +419,8 @@ function openNewCharacterModal(){
   openModal("newCharModal");
 }
 function renderClassPreview(){
-  const key=document.getElementById("newCharClass").value;
-  const cls=CLASS_DATA[key];
+  const key=document.getElementById("newCharClass").value || "generalist";
+  const cls=CLASS_DATA[key] || CLASS_DATA.generalist;
   document.getElementById("specialistPickWrap").classList.toggle("hidden", key!=="specialist");
   document.getElementById("classPreview").innerHTML=`<h3>${cls.name}</h3><p><strong>Perk:</strong> ${cls.perk}</p><p><strong>Starting Gear:</strong> ${(cls.gear&&cls.gear.length)?cls.gear.join(", "):(key==="specialist"?"Chosen primary starts at Tier II":"None")}</p>`;
 }
@@ -554,7 +554,7 @@ function renderRules(){
  <h3>Shop</h3><ul><li>The Shop is locked until you learn Unlock Shop for 3 TP.</li><li>Gold buys equipment unlocks, gear upgrades, slot unlocks, and randomly available Talent Points.</li><li>Stock is rerolled after each contract.</li><li>Reroll stock costs Player Level × 100 Gold, reduced by talents.</li></ul>
  <h3>Cursed Items</h3><ul><li>Cursed possessions require their matching Cursed Item talent before your character may use them.</li><li>Unlocked cursed items are shown on the Character page.</li></ul>
  <h3>Dailies</h3><ul><li>Unlock Dailies grants +100 Gold for the first successful clear on each map each day.</li><li>This bonus is flat and is not increased by other Gold talents.</li><li>When unlocked, daily map progress appears on the Character page.</li></ul>
- <h3>Classes</h3><ul><li>New characters choose a class during creation.</li><li>Older saves with no class become Generalist.</li><li>Specialist chooses one primary item to start at Tier II.</li><li>Demonologist and Exorcist receive class-specific bonus checkboxes on contract completion.</li></ul><h3>Multiplayer</h3><ul><li>Each player tracks their own character.</li><li>You may use the host's gear, even if your character has not unlocked it.</li><li>Playing above your recommended difficulty shifts loot toward reduced Gold instead of equipment progression.</li></ul><h3>Save Compatibility</h3><ul><li>Saves include a version number and are repaired on load.</li><li>Older saves automatically receive missing fields for new talents, dailies, shop gating, slot caps, and progress tracking.</li><li>Future talent additions should not require a new character.</li></ul>
+ <h3>Multiplayer</h3><ul><li>Each player tracks their own character.</li><li>You may use the host's gear, even if your character has not unlocked it.</li><li>Playing above your recommended difficulty shifts loot toward reduced Gold instead of equipment progression.</li></ul><h3>Save Compatibility</h3><ul><li>Saves include a version number and are repaired on load.</li><li>Older saves automatically receive missing fields for new talents, dailies, shop gating, slot caps, and progress tracking.</li><li>Future talent additions should not require a new character.</li></ul>
  </div>`;
 }
 function buyTalent(k){let t=TALENTS.find(x=>x[0]===k); if(!t||state.talents[k]||state.tp<t[3])return; state.tp-=t[3]; state.talents[k]=true; render();}
@@ -642,7 +642,8 @@ function submitContract(){
  closeModal("contractModal");
  const talentHtml = talentLines.length ? `<h3>Talent & Modifier Bonuses</h3><ul>${talentLines.map(x=>`<li>${x}</li>`).join("")}</ul>` : "";
  const cartHtml = cartographerBonus ? `<p><strong>🗺 Cartographer Bonus:</strong> +${money(cartographerBonus)} Gold</p>` : "";
- document.getElementById("resultBody").innerHTML=`<p><strong>You earned ${money(exp)} EXP and ${money(gold)} Gold!</strong></p>${talentHtml}${cartHtml}<p>Bonus Loot: <strong>${loot.text}</strong></p>${classMsg}${loadoutMsg}`;
+ let classMsg = classGoldBonus ? `<p><strong>Class Bonus:</strong> +${money(classGoldBonus)} Gold</p>` : "";
+document.getElementById("resultBody").innerHTML=`<p><strong>You earned ${money(exp)} EXP and ${money(gold)} Gold!</strong></p>${talentHtml}${cartHtml}<p>Bonus Loot: <strong>${loot.text}</strong></p>${classMsg}${loadoutMsg}`;
  openModal("resultModal"); render();
  }catch(err){
   console.error("Roll Loot failed", err);
@@ -674,7 +675,7 @@ function rollLoot(above){
 }
 function saveFile(){
  state=repairSave(state);
- state.saveVersion="1.0.7"; const blob=new Blob([JSON.stringify(state,null,2)],{type:"application/json"});
+ state.saveVersion="1.0.9"; const blob=new Blob([JSON.stringify(state,null,2)],{type:"application/json"});
  const a=document.createElement("a"); a.href=URL.createObjectURL(blob); a.download="phasmophobia-rpg-character-v1.0.4.json"; a.click();
 }
 function loadFile(ev){
