@@ -74,7 +74,7 @@ input.invalid,select.invalid{border-color:var(--bad);box-shadow:0 0 0 2px rgba(2
 <div class="wrap">
 <header>
   <div>
-    <h1>Phasmophobia RPG v1.0.5</h1>
+    <h1>Phasmophobia RPG v1.0.7</h1>
     <div class="sub">Companion RPG campaign tracker for Phasmophobia</div>
   </div>
   <div class="actions">
@@ -82,7 +82,7 @@ input.invalid,select.invalid{border-color:var(--bad);box-shadow:0 0 0 2px rgba(2
     <button onclick="saveFile()">Save Character</button>
     <button onclick="document.getElementById('loadFile').click()">Load Character</button>
     <input id="loadFile" type="file" accept=".json" class="hidden" onchange="loadFile(event)">
-    <button class="danger" onclick="newCharacter()">New Character</button>
+    <button class="danger" onclick="openNewCharacterModal()">New Character</button>
   </div>
 </header>
 
@@ -108,7 +108,7 @@ input.invalid,select.invalid{border-color:var(--bad);box-shadow:0 0 0 2px rgba(2
       <div class="checks">
         <label><input id="cCorrect" type="checkbox" checked> Ghost identified correctly</label>
         <label><input id="cAlive" type="checkbox" checked> Player survived</label>
-        <label><input id="cPerfect" type="checkbox"> Perfect Investigation</label>
+        <label><input id="cPerfect" type="checkbox"> Perfect Investigation</label><label id="demonologistCheck" class="hidden"><input id="cSmudgeHunt" type="checkbox"> Smudged a ghost during a hunt</label><label id="exorcistCheck" class="hidden"><input id="cCruciBurn" type="checkbox"> Crucifix Burn</label>
       </div>
     </div>
     <div style="display:flex;justify-content:flex-end;gap:10px;margin-top:16px">
@@ -138,10 +138,47 @@ input.invalid,select.invalid{border-color:var(--bad);box-shadow:0 0 0 2px rgba(2
   </div>
 </div>
 
+
+<div class="modal" id="newCharModal">
+  <div class="modalbox">
+    <div class="modalhead"><h2>Create New Character</h2><button class="close" onclick="closeModal('newCharModal')">✕</button></div>
+    <div class="formgrid">
+      <label>Character Name<input id="newCharName" type="text" value="Investigator"></label>
+      <label>Class<select id="newCharClass" onchange="renderClassPreview()"></select></label>
+      <label id="specialistPickWrap" class="hidden">Specialist Primary<select id="specialistPick"></select></label>
+    </div>
+    <div class="card" style="margin-top:12px" id="classPreview"></div>
+    <div style="display:flex;justify-content:flex-end;gap:10px;margin-top:16px">
+      <button onclick="closeModal('newCharModal')">Cancel</button>
+      <button class="primary" onclick="createCharacterFromModal()">Create Character</button>
+    </div>
+  </div>
+</div>
+
 <script>
-const SAVE_VERSION="1.0.5";
+const SAVE_VERSION='1.0.7';
 const DIFFS=["Amateur","Intermediate","Professional","Nightmare","Insanity"];
 const MAPS=["Tanglewood Drive","Edgefield Road","Ridgeview Court","Willow Street","Grafton Farmhouse","Bleasdale Farmhouse","Camp Woodwind","Maple Lodge Campsite","Prison","Brownstone High School","Sunny Meadows","Sunny Meadows Restricted","Point Hope"];
+
+const CLASS_DATA = {
+  generalist:{name:"Generalist",perk:"+5% EXP and +5% Gold from all contracts.",gear:["Head Gear"]},
+  parapsychologist:{name:"Parapsychologist",perk:"+10% EXP from all contracts.",gear:["Sanity Medication"]},
+  fieldAgent:{name:"Field Agent",perk:"+10% Gold from all contracts.",gear:["Sound Sensor"]},
+  quartermaster:{name:"Quartermaster",perk:"Shop prices reduced by 10%.",gear:["Tripod"]},
+  clairvoyant:{name:"Clairvoyant",perk:"Starts with Jackpot unlocked. Jackpot has a 20% chance to award +100 bonus Gold.",gear:["Parabolic Microphone"]},
+  trailblazer:{name:"Trailblazer",perk:"Starts with Unlock Dailies.",gear:["Motion Sensor"]},
+  specialist:{name:"Specialist",perk:"Choose one Primary Item to begin at Tier II.",gear:[]},
+  demonologist:{name:"Demonologist",perk:"Smudging a ghost during a hunt grants +25 Gold.",gear:["Incense","Igniter"]},
+  exorcist:{name:"Exorcist",perk:"A Crucifix Burn grants +25 Gold.",gear:["Crucifix"]},
+  occultist:{name:"Occultist",perk:"Starts with all Cursed Object talents unlocked.",gear:["Firelight"]}
+};
+const MAP_SIZE = {
+  "Tanglewood Drive":"small","Edgefield Road":"small","Ridgeview Court":"small","Willow Street":"small","Camp Woodwind":"small","Grafton Farmhouse":"small",
+  "Point Hope":"medium","Bleasdale Farmhouse":"medium","Maple Lodge Campsite":"medium",
+  "Prison":"large","Brownstone High School":"large","Sunny Meadows":"large","Sunny Meadows Restricted":"large"
+};
+const DAILY_GOLD = {small:100, medium:200, large:300};
+
 const PRIMARY=["EMF Reader","Flashlight","UV Light","Spirit Box","Ghost Writing Book","Thermometer","DOTS Projector","Video Camera"];
 const SECONDARY=["Salt","Incense","Igniter","Firelight","Crucifix","Motion Sensor","Sound Sensor","Tripod","Head Gear","Sanity Medication","Parabolic Microphone"];
 const CURSED_ITEMS=["Music Box","Ouija Board","Tarot Cards","Haunted Mirror","Voodoo Doll","Summoning Circle","Monkey Paw"];
@@ -215,6 +252,15 @@ function ensureDiffStats(diffName){
   state.diffStats[diffName].deaths = Math.max(0, Math.floor(+state.diffStats[diffName].deaths || 0));
   return state.diffStats[diffName];
 }
+
+function repairClassFields(){
+  state.classKey ||= "generalist";
+  if(!CLASS_DATA[state.classKey]) state.classKey="generalist";
+  state.specialistItem ||= null;
+  state.talents ||= {};
+  applyClassStartingBenefits();
+}
+
 function repairAllProgressCells(){
   MAPS.forEach(m=>DIFFS.forEach(d=>ensureProgressCell(m,d)));
   DIFFS.forEach(d=>ensureDiffStats(d));
@@ -285,6 +331,7 @@ function loadAutosaveSafely(){
 let state=repairSave(loadAutosaveSafely());
 resetCartographerDaily();
 repairAllProgressCells();
+repairClassFields();
 function expNeed(l=state.level){return 100+l*50}
 function maxDiff(){let out="Amateur"; LEVEL_DIFF.forEach(([d,l])=>{if(state.level>=l)out=d}); return out}
 function diffIndex(d){return DIFFS.indexOf(d)}
@@ -306,6 +353,7 @@ function discountFor(type){
  if(type==="tier"&&hasTalent("gearMaintenance")) off+=.10;
  if(type==="slot"&&hasTalent("efficientStorage")) off+=.10;
  if(type==="unlock"&&hasTalent("quartermaster")) off+=.10;
+ if(classKey()==="quartermaster") off+=.10;
  if(hasTalent("discountHunter")) off+=.05;
  return Math.min(.4,off);
 }
@@ -315,6 +363,7 @@ function price(item){
  if(type==="unlock") p=500;
  if(type==="slot") p=(e.slots+1)*450;
  if(type==="tier") p=(e.tier+1)*750;
+ if(type==="talentPoint") p=2500;
  if(type==="talentPoint") p=2500 + state.level*150;
  return Math.max(50,Math.round(p*(1-discountFor(type))));
 }
@@ -336,6 +385,55 @@ function renderTabs(){
   b.onclick=()=>showTab(id); nav.appendChild(b);
  });
 }
+
+function classKey(){ return state.classKey || "generalist"; }
+function playerClass(){ return CLASS_DATA[classKey()] || CLASS_DATA.generalist; }
+function dailyBonusForMap(mapName){ return DAILY_GOLD[MAP_SIZE[mapName] || "small"] || 100; }
+function unlockStartingGear(item){
+  if(!item || !state.equipment[item]) return;
+  state.equipment[item].tier = Math.max(state.equipment[item].tier||0, 1);
+  state.equipment[item].slots = Math.max(state.equipment[item].slots||0, 1);
+}
+function applyClassStartingBenefits(){
+  state.classKey ||= "generalist";
+  if(!CLASS_DATA[state.classKey]) state.classKey="generalist";
+  state.specialistItem ||= null;
+  state.talents ||= {};
+  (playerClass().gear||[]).forEach(unlockStartingGear);
+  if(state.classKey==="clairvoyant") state.talents.jackpot = true;
+  if(state.classKey==="trailblazer") state.talents.unlockDailies = true;
+  if(state.classKey==="occultist"){
+    ["ouijaBoard","musicBox","hauntedMirror","monkeyPaw","tarotCards","summoningCircle","voodooDoll"].forEach(k=>state.talents[k]=true);
+  }
+  if(state.classKey==="specialist" && state.specialistItem && state.equipment[state.specialistItem]){
+    state.equipment[state.specialistItem].tier = Math.max(state.equipment[state.specialistItem].tier||1, 2);
+    state.equipment[state.specialistItem].slots = Math.max(state.equipment[state.specialistItem].slots||1, 1);
+  }
+}
+function openNewCharacterModal(){
+  const c=document.getElementById("newCharClass");
+  c.innerHTML=Object.entries(CLASS_DATA).map(([k,v])=>`<option value="${k}">${v.name}</option>`).join("");
+  document.getElementById("specialistPick").innerHTML=PRIMARY.map(x=>`<option>${x}</option>`).join("");
+  document.getElementById("newCharName").value="Investigator";
+  renderClassPreview();
+  openModal("newCharModal");
+}
+function renderClassPreview(){
+  const key=document.getElementById("newCharClass").value;
+  const cls=CLASS_DATA[key];
+  document.getElementById("specialistPickWrap").classList.toggle("hidden", key!=="specialist");
+  document.getElementById("classPreview").innerHTML=`<h3>${cls.name}</h3><p><strong>Perk:</strong> ${cls.perk}</p><p><strong>Starting Gear:</strong> ${(cls.gear&&cls.gear.length)?cls.gear.join(", "):(key==="specialist"?"Chosen primary starts at Tier II":"None")}</p>`;
+}
+function createCharacterFromModal(){
+  state=fresh();
+  state.name=(document.getElementById("newCharName").value||"Investigator").trim();
+  state.classKey=document.getElementById("newCharClass").value || "generalist";
+  state.specialistItem = state.classKey==="specialist" ? document.getElementById("specialistPick").value : null;
+  applyClassStartingBenefits();
+  closeModal("newCharModal");
+  render();
+}
+
 function render(){
  renderTabs(); renderGetting(); renderCharacter(); renderEquipment(); renderTalents(); renderProgress(); renderShop(); renderRules();
  showTab(localStorage.getItem("phasmoRpgTab") || "getting");
@@ -378,7 +476,7 @@ function renderCharacter(){
  const t2=countClearsAtOrAbove("Professional"), t3=countClearsAtOrAbove("Nightmare");
  document.getElementById("character").innerHTML=`
  <div class="grid">
- <div class="card span7"><h2>Character</h2><div class="statrow">
+ <div class="card span7"><h2>Character</h2><p><span class="label">Class</span><br><strong class="purple">${playerClass().name}</strong> — ${playerClass().perk}</p><div class="statrow">
  <div class="stat"><div class="label">Level</div><div class="value">${state.level}</div></div>
  <div class="stat"><div class="label">EXP</div><div class="value">${money(state.exp)} / ${money(need)}</div></div>
  <div class="stat"><div class="label">Gold</div><div class="value">${money(state.gold)}</div></div>
@@ -430,6 +528,7 @@ function validShopItems(){
   if(e.tier>0 && e.tier<Math.min(3,cap)) items.push({type:"tier",target:n,label:`Upgrade ${n}`,desc:`Tier ${e.tier} → ${e.tier+1}`});
  }
  items.push({type:"talentPoint",target:"Talent Point",label:"Buy Talent Point",desc:"Gain +1 unspent Talent Point"});
+ items.push({type:"talentPoint",target:"Talent Point",label:"Talent Point",desc:"+1 unspent Talent Point"});
  return items;
 }
 function restock(){
@@ -444,7 +543,7 @@ function renderShop(){
  }
  if(!state.shop.length) restock();
  const cost=rerollCost();
- document.getElementById("shop").innerHTML=`<div class="card"><h2>Shop</h2><p class="small">Stock is rerolled after each contract. Reroll stock costs Level × 100 Gold, reduced by talents.</p><button onclick="rerollShop()">Reroll Stock (${money(cost)} Gold)</button><div class="shopgrid" style="margin-top:12px">${state.shop.map((it,i)=>`<div class="shopitem"><h3>${it.label}</h3><p class="small">${it.desc}</p><p><strong>${money(price(it))} Gold</strong></p><button ${state.gold<price(it)?'disabled':''} onclick="buyShop(${i})">Purchase</button></div>`).join("") || "<p>No valid shop items remain.</p>"}</div></div>`;
+ document.getElementById("shop").innerHTML=`<div class="card"><h2>Shop</h2><p><span class="label">Gold</span><br><strong style="font-size:24px">${money(state.gold)}</strong></p><p class="small">Stock is rerolled after each contract. Reroll stock costs Level × 100 Gold, reduced by talents.</p><button onclick="rerollShop()">Reroll Stock (${money(cost)} Gold)</button><div class="shopgrid" style="margin-top:12px">${state.shop.map((it,i)=>`<div class="shopitem"><h3>${it.label}</h3><p class="small">${it.desc}</p><p><strong>${money(price(it))} Gold</strong></p><button ${state.gold<price(it)?'disabled':''} onclick="buyShop(${i})">Purchase</button></div>`).join("") || "<p>No valid shop items remain.</p>"}</div></div>`;
 }
 function renderRules(){
  document.getElementById("rules").innerHTML=`<div class="card rules"><h2>Rules Reference</h2>
@@ -455,7 +554,7 @@ function renderRules(){
  <h3>Shop</h3><ul><li>The Shop is locked until you learn Unlock Shop for 3 TP.</li><li>Gold buys equipment unlocks, gear upgrades, slot unlocks, and randomly available Talent Points.</li><li>Stock is rerolled after each contract.</li><li>Reroll stock costs Player Level × 100 Gold, reduced by talents.</li></ul>
  <h3>Cursed Items</h3><ul><li>Cursed possessions require their matching Cursed Item talent before your character may use them.</li><li>Unlocked cursed items are shown on the Character page.</li></ul>
  <h3>Dailies</h3><ul><li>Unlock Dailies grants +100 Gold for the first successful clear on each map each day.</li><li>This bonus is flat and is not increased by other Gold talents.</li><li>When unlocked, daily map progress appears on the Character page.</li></ul>
- <h3>Multiplayer</h3><ul><li>Each player tracks their own character.</li><li>You may use the host's gear, even if your character has not unlocked it.</li><li>Playing above your recommended difficulty shifts loot toward reduced Gold instead of equipment progression.</li></ul><h3>Save Compatibility</h3><ul><li>Saves include a version number and are repaired on load.</li><li>Older saves automatically receive missing fields for new talents, dailies, shop gating, slot caps, and progress tracking.</li><li>Future talent additions should not require a new character.</li></ul>
+ <h3>Classes</h3><ul><li>New characters choose a class during creation.</li><li>Older saves with no class become Generalist.</li><li>Specialist chooses one primary item to start at Tier II.</li><li>Demonologist and Exorcist receive class-specific bonus checkboxes on contract completion.</li></ul><h3>Multiplayer</h3><ul><li>Each player tracks their own character.</li><li>You may use the host's gear, even if your character has not unlocked it.</li><li>Playing above your recommended difficulty shifts loot toward reduced Gold instead of equipment progression.</li></ul><h3>Save Compatibility</h3><ul><li>Saves include a version number and are repaired on load.</li><li>Older saves automatically receive missing fields for new talents, dailies, shop gating, slot caps, and progress tracking.</li><li>Future talent additions should not require a new character.</li></ul>
  </div>`;
 }
 function buyTalent(k){let t=TALENTS.find(x=>x[0]===k); if(!t||state.talents[k]||state.tp<t[3])return; state.tp-=t[3]; state.talents[k]=true; render();}
@@ -470,6 +569,7 @@ function rerollShop(){
 }
 function applyReward(r){
  if(r.type==="talentPoint"){state.tp++; state.lastLoot="Talent Point +1"; return;}
+ if(r.type==="talentPoint"){state.tp++; state.lastLoot="+1 Talent Point"; return;}
  const e=state.equipment[r.target];
  if(r.type==="unlock"){e.tier=1;e.slots=1;state.lastLoot=`Unlocked ${r.target}`;}
  if(r.type==="slot"){e.slots=Math.min(itemCap(r.target),e.slots+1);state.lastLoot=`+1 ${r.target} Slot`;}
@@ -484,6 +584,10 @@ function openContract(){
  document.getElementById("cMoney").value="";
  ["cCorrect","cAlive"].forEach(id=>document.getElementById(id).checked=true);
  document.getElementById("cPerfect").checked=false;
+ document.getElementById("demonologistCheck")?.classList.toggle("hidden", classKey()!=="demonologist");
+ document.getElementById("exorcistCheck")?.classList.toggle("hidden", classKey()!=="exorcist");
+ if(document.getElementById("cSmudgeHunt")) document.getElementById("cSmudgeHunt").checked=false;
+ if(document.getElementById("cCruciBurn")) document.getElementById("cCruciBurn").checked=false;
  clearValidation(); openModal("contractModal");
 }
 function clearValidation(){document.getElementById("contractErrors").style.display="none"; document.querySelectorAll("#contractModal .invalid").forEach(x=>x.classList.remove("invalid"))}
@@ -520,7 +624,7 @@ function submitContract(){
  let cartographerBonus=0;
  const successfulClear=correct && alive;
  if(successfulClear && hasTalent("cartographer") && !state.cartographerDaily.maps[map.value]){
-  cartographerBonus=100;
+  cartographerBonus=dailyBonusForMap(map.value);
   state.cartographerDaily.maps[map.value]=true;
  }
  if(successfulClear && hasTalent("mapExpert")){
@@ -531,13 +635,14 @@ function submitContract(){
  if(successfulClear){ensureProgressCell(map.value,diff.value).clears++; ensureDiffStats(diff.value).clears++}
  if(perfect){ensureProgressCell(map.value,diff.value).perfects++; ensureDiffStats(diff.value).perfects++}
  if(!alive){ensureProgressCell(map.value,diff.value).deaths++; ensureDiffStats(diff.value).deaths++}
- const loot=rollLoot(above); let loadoutMsg = loot.type==="gold" || loot.type==="talentPoint" ? "" : "<p class='warn'>Update your loadout in-game and click Continue.</p>";
+ const loot=rollLoot(above);
+ restock(); let loadoutMsg = loot.type==="gold" || loot.type==="talentPoint" ? "" : "<p class='warn'>Update your loadout in-game and click Continue.</p>";
  levelUp();
  if(hasTalent("unlockShop")) restock();
  closeModal("contractModal");
  const talentHtml = talentLines.length ? `<h3>Talent & Modifier Bonuses</h3><ul>${talentLines.map(x=>`<li>${x}</li>`).join("")}</ul>` : "";
  const cartHtml = cartographerBonus ? `<p><strong>🗺 Cartographer Bonus:</strong> +${money(cartographerBonus)} Gold</p>` : "";
- document.getElementById("resultBody").innerHTML=`<p><strong>You earned ${money(exp)} EXP and ${money(gold)} Gold!</strong></p>${talentHtml}${cartHtml}<p>Bonus Loot: <strong>${loot.text}</strong></p>${loadoutMsg}`;
+ document.getElementById("resultBody").innerHTML=`<p><strong>You earned ${money(exp)} EXP and ${money(gold)} Gold!</strong></p>${talentHtml}${cartHtml}<p>Bonus Loot: <strong>${loot.text}</strong></p>${classMsg}${loadoutMsg}`;
  openModal("resultModal"); render();
  }catch(err){
   console.error("Roll Loot failed", err);
@@ -562,20 +667,20 @@ function rollLoot(above){
  let total=categories.reduce((s,x)=>s+x.w,0), r=Math.random()*total, cat=categories[0];
  for(const c of categories){if((r-=c.w)<=0){cat=c;break}}
  if(!cat || cat.type==="gold"){
-  let g=100+state.level*15; if(hasTalent("treasureHunter")||hasTalent("stockpile"))g=Math.floor(g*1.1); if(hasTalent("jackpot")&&Math.random()<.05)g+=100;
+  let g=100+state.level*15; if(hasTalent("treasureHunter")||hasTalent("stockpile"))g=Math.floor(g*1.1); if(hasTalent("jackpot")&&Math.random()<(classKey()==="clairvoyant" ? .20 : .10))g+=100;
   state.gold+=g; state.lastLoot=`Gold Cache: ${money(g)} Gold`; return {type:"gold",text:`${money(g)} Gold Cache`};
  }
  const item=cat.items[Math.floor(Math.random()*cat.items.length)]; applyReward(item); return {type:item.type,text:state.lastLoot};
 }
 function saveFile(){
  state=repairSave(state);
- const blob=new Blob([JSON.stringify(state,null,2)],{type:"application/json"});
+ state.saveVersion="1.0.7"; const blob=new Blob([JSON.stringify(state,null,2)],{type:"application/json"});
  const a=document.createElement("a"); a.href=URL.createObjectURL(blob); a.download="phasmophobia-rpg-character-v1.0.4.json"; a.click();
 }
 function loadFile(ev){
  const f=ev.target.files[0]; if(!f)return; const r=new FileReader(); r.onload=()=>{try{state=repairSave(JSON.parse(r.result)); render(); alert("Character loaded and updated for v1.0.4.");}catch(err){alert("Could not load character file. The save may be corrupted or not valid JSON.");}}; r.readAsText(f);
 }
-function newCharacter(){if(confirm("Start a new character? This clears browser autosave.")){state=fresh();localStorage.removeItem("phasmoRpgV1");render()}}
+function newCharacter(){ openNewCharacterModal(); }
 render();
 </script>
 </body>
