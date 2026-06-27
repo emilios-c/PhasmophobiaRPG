@@ -1,4 +1,4 @@
-# Phasmophobia RPG v1.1.1
+# Phasmophobia RPG v1.1.2
 
 A companion RPG progression tracker for Phasmophobia.
 
@@ -31,7 +31,7 @@ https://<your-username>.github.io/<repo-name>/
 
 Saves are stored in browser localStorage and can also be exported/imported as JSON.
 
-## v1.1.1
+## v1.1.2
 
 - Compact reward modal spacing.
 - Added EXP/Gold totals to Contract Complete screen.

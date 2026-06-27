@@ -245,7 +245,6 @@ export function renderRewardModal(result) {
       <div class="stat"><div class="label">EXP Earned</div><div class="value">${money(result.exp)}</div><div class="small">Total: ${money(result.totals.exp)} / ${money(result.totals.expNeeded)}</div></div>
       <div class="stat"><div class="label">Gold Earned</div><div class="value">${money(result.gold)}</div><div class="small">Total: ${money(result.totals.gold)}</div></div>
     </div>
-    <hr class="section-divider">
     <h3>Experience</h3>
     ${rows(result.breakdown.exp)}
     <div class="breakdown-row"><span>Final EXP</span><strong>${money(result.exp)}</strong></div>

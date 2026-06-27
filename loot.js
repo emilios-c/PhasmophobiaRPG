@@ -9,7 +9,7 @@ export function validLootByType(state, type) {
   for (const item of EQUIPMENT) {
     const owned = state.equipment[item.id];
     if (type === "unlock" && item.type === "secondary" && owned.tier === 0) {
-      items.push({ type, target: item.id, text: `(Tier 1) ${item.name}` });
+      items.push({ type, target: item.id, text: `(Tier 1) ${item.name} (+1 Slot)` });
     }
     if (type === "slot" && owned.tier > 0 && owned.slots < item.maxSlots) {
       items.push({ type, target: item.id, text: `+1 ${item.name} Slot` });

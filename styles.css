@@ -116,7 +116,7 @@ input.invalid, select.invalid { border-color: var(--bad); box-shadow: 0 0 0 2px 
 }
 
 
-/* v1.1.1 compact reward modal */
+/* v1.1.2 compact reward modal */
 .reward-summary {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -142,9 +142,12 @@ input.invalid, select.invalid { border-color: var(--bad); box-shadow: 0 0 0 2px 
   font-size: 16px;
 }
 .breakdown.compact .breakdown-row {
-  padding: 4px 0;
+  padding: 2px 0;
   font-size: 14px;
 }
 .breakdown.compact p {
   margin: 4px 0;
 }
+
+.breakdown.compact .breakdown-row{line-height:1.15;margin:0;}
+.breakdown.compact h3{margin-top:2px;}

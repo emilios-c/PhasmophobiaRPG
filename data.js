@@ -1,4 +1,4 @@
-export const SAVE_VERSION = "1.1.1";
+export const SAVE_VERSION = "1.1.2";
 
 export const DIFFICULTIES = ["Amateur", "Intermediate", "Professional", "Nightmare", "Insanity"];
 
