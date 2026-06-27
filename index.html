@@ -74,7 +74,7 @@ input.invalid,select.invalid{border-color:var(--bad);box-shadow:0 0 0 2px rgba(2
 <div class="wrap">
 <header>
   <div>
-    <h1>Phasmophobia RPG v1.0.3</h1>
+    <h1>Phasmophobia RPG v1.0.5</h1>
     <div class="sub">Companion RPG campaign tracker for Phasmophobia</div>
   </div>
   <div class="actions">
@@ -139,7 +139,7 @@ input.invalid,select.invalid{border-color:var(--bad);box-shadow:0 0 0 2px rgba(2
 </div>
 
 <script>
-const SAVE_VERSION="1.0.3";
+const SAVE_VERSION="1.0.5";
 const DIFFS=["Amateur","Intermediate","Professional","Nightmare","Insanity"];
 const MAPS=["Tanglewood Drive","Edgefield Road","Ridgeview Court","Willow Street","Grafton Farmhouse","Bleasdale Farmhouse","Camp Woodwind","Maple Lodge Campsite","Prison","Brownstone High School","Sunny Meadows","Sunny Meadows Restricted","Point Hope"];
 const PRIMARY=["EMF Reader","Flashlight","UV Light","Spirit Box","Ghost Writing Book","Thermometer","DOTS Projector","Video Camera"];
@@ -197,6 +197,29 @@ function nextDailyResetText(){
  const ms=next-now, h=Math.floor(ms/3600000), m=Math.floor((ms%3600000)/60000);
  return `${h}h ${m}m`;
 }
+
+function ensureProgressCell(mapName,diffName){
+  state.progress ||= {};
+  state.progress[mapName] ||= {};
+  state.progress[mapName][diffName] ||= {clears:0,perfects:0,deaths:0};
+  state.progress[mapName][diffName].clears = Math.max(0, Math.floor(+state.progress[mapName][diffName].clears || 0));
+  state.progress[mapName][diffName].perfects = Math.max(0, Math.floor(+state.progress[mapName][diffName].perfects || 0));
+  state.progress[mapName][diffName].deaths = Math.max(0, Math.floor(+state.progress[mapName][diffName].deaths || 0));
+  return state.progress[mapName][diffName];
+}
+function ensureDiffStats(diffName){
+  state.diffStats ||= {};
+  state.diffStats[diffName] ||= {clears:0,perfects:0,deaths:0};
+  state.diffStats[diffName].clears = Math.max(0, Math.floor(+state.diffStats[diffName].clears || 0));
+  state.diffStats[diffName].perfects = Math.max(0, Math.floor(+state.diffStats[diffName].perfects || 0));
+  state.diffStats[diffName].deaths = Math.max(0, Math.floor(+state.diffStats[diffName].deaths || 0));
+  return state.diffStats[diffName];
+}
+function repairAllProgressCells(){
+  MAPS.forEach(m=>DIFFS.forEach(d=>ensureProgressCell(m,d)));
+  DIFFS.forEach(d=>ensureDiffStats(d));
+}
+
 function fresh(){
  let eq={}; PRIMARY.forEach(n=>eq[n]={tier:1,slots:1,primary:true}); SECONDARY.forEach(n=>eq[n]={tier:0,slots:0,primary:false});
  let prog={}; MAPS.forEach(m=>{prog[m]={}; DIFFS.forEach(d=>prog[m][d]={clears:0,perfects:0,deaths:0})});
@@ -255,8 +278,13 @@ function repairSave(input){
  s.shop = Array.isArray(s.shop) ? s.shop.filter(it=>it && (it.type==="talentPoint" || (it.target && s.equipment[it.target]))) : [];
  return s;
 }
-let state=repairSave(JSON.parse(localStorage.getItem("phasmoRpgV1")||"null")||fresh());
+function loadAutosaveSafely(){
+ try{ return JSON.parse(localStorage.getItem("phasmoRpgV1")||"null") || fresh(); }
+ catch(err){ console.warn("Autosave could not be parsed; starting repaired fresh save.", err); return fresh(); }
+}
+let state=repairSave(loadAutosaveSafely());
 resetCartographerDaily();
+repairAllProgressCells();
 function expNeed(l=state.level){return 100+l*50}
 function maxDiff(){let out="Amateur"; LEVEL_DIFF.forEach(([d,l])=>{if(state.level>=l)out=d}); return out}
 function diffIndex(d){return DIFFS.indexOf(d)}
@@ -267,7 +295,7 @@ function tierCap(){
 }
 function countClearsAtOrAbove(d){
  const i=diffIndex(d); let c=0;
- for(const m of MAPS) for(let x=i;x<DIFFS.length;x++) c+=state.progress[m][DIFFS[x]].clears||0;
+ for(const m of MAPS) for(let x=i;x<DIFFS.length;x++) c+=ensureProgressCell(m,DIFFS[x]).clears||0;
  return c;
 }
 function saveLocal(){resetCartographerDaily();localStorage.setItem("phasmoRpgV1",JSON.stringify(state))}
@@ -291,6 +319,7 @@ function price(item){
  return Math.max(50,Math.round(p*(1-discountFor(type))));
 }
 function showTab(id){
+ if(!document.getElementById(id) || !document.querySelector(`[data-tab="${id}"]`)) id="getting";
  document.querySelectorAll(".tab").forEach(t=>t.classList.remove("active"));
  document.querySelectorAll(".tabbtn").forEach(b=>b.classList.remove("active"));
  document.getElementById(id).classList.add("active");
@@ -388,7 +417,7 @@ function renderTalents(){
 function renderProgress(){
  let diffRows=DIFFS.map(d=>`<tr><td>${d}</td><td>${state.diffStats[d].clears}</td><td>${state.diffStats[d].perfects}</td><td>${state.diffStats[d].deaths}</td></tr>`).join("");
  let mapRows=MAPS.map(m=>{
-  let cells=DIFFS.map(d=>{let r=state.progress[m][d]; return `<td>${r.perfects?'★':r.clears?'✓':'—'}${r.deaths?` <span class="bad">☠${r.deaths}</span>`:''}</td>`}).join("");
+  let cells=DIFFS.map(d=>{let r=ensureProgressCell(m,d); return `<td>${r.perfects?'★':r.clears?'✓':'—'}${r.deaths?` <span class="bad">☠${r.deaths}</span>`:''}</td>`}).join("");
   return `<tr><td>${m}</td>${cells}</tr>`
  }).join("");
  document.getElementById("progress").innerHTML=`<div class="grid"><div class="card span5"><h2>Difficulty Records</h2><table><tr><th>Difficulty</th><th>Clears</th><th>Perfects</th><th>Deaths</th></tr>${diffRows}</table></div><div class="card span7"><h2>Map Completion</h2><table><tr><th>Map</th>${DIFFS.map(d=>`<th>${d[0]}</th>`).join("")}</tr>${mapRows}</table><p class="small">✓ clear, ★ perfect, ☠ deaths</p></div></div>`;
@@ -459,6 +488,7 @@ function openContract(){
 }
 function clearValidation(){document.getElementById("contractErrors").style.display="none"; document.querySelectorAll("#contractModal .invalid").forEach(x=>x.classList.remove("invalid"))}
 function submitContract(){
+ try{
  clearValidation();
  resetCartographerDaily();
  const map=document.getElementById("cMap"), diff=document.getElementById("cDiff"), moneyIn=document.getElementById("cMoney");
@@ -468,6 +498,7 @@ function submitContract(){
  if(!val || val<1 || val>10000){errs.push("Reward Money must be between 1 and 10,000."); moneyIn.classList.add("invalid")}
  if(perfect && (!correct || !alive)){errs.push("A Perfect Investigation requires correct ghost identification and surviving.");}
  if(errs.length){let e=document.getElementById("contractErrors"); e.innerHTML="<strong>Please correct:</strong><ul><li>"+errs.join("</li><li>")+"</li></ul>"; e.style.display="block"; return;}
+ ensureProgressCell(map.value,diff.value); ensureDiffStats(diff.value);
  const rec=diffIndex(maxDiff()), played=diffIndex(diff.value), above=Math.max(0,played-rec);
  let expBase=Math.floor(val*.32), goldBase=Math.floor(val*.22);
  let expBonus=0, goldBonus=0, talentLines=[];
@@ -493,13 +524,13 @@ function submitContract(){
   state.cartographerDaily.maps[map.value]=true;
  }
  if(successfulClear && hasTalent("mapExpert")){
-  let lifetime=0; for(const d of DIFFS) lifetime += state.progress[map.value][d].clears||0;
+  let lifetime=0; for(const d of DIFFS) lifetime += ensureProgressCell(map.value,d).clears||0;
   if(lifetime<5){ gold+=25; talentLines.push("Route Planner: +25 Gold"); }
  }
  state.exp+=exp; state.gold+=gold+cartographerBonus; state.contracts++;
- if(successfulClear){state.progress[map.value][diff.value].clears++; state.diffStats[diff.value].clears++}
- if(perfect){state.progress[map.value][diff.value].perfects++; state.diffStats[diff.value].perfects++}
- if(!alive){state.progress[map.value][diff.value].deaths++; state.diffStats[diff.value].deaths++}
+ if(successfulClear){ensureProgressCell(map.value,diff.value).clears++; ensureDiffStats(diff.value).clears++}
+ if(perfect){ensureProgressCell(map.value,diff.value).perfects++; ensureDiffStats(diff.value).perfects++}
+ if(!alive){ensureProgressCell(map.value,diff.value).deaths++; ensureDiffStats(diff.value).deaths++}
  const loot=rollLoot(above); let loadoutMsg = loot.type==="gold" || loot.type==="talentPoint" ? "" : "<p class='warn'>Update your loadout in-game and click Continue.</p>";
  levelUp();
  if(hasTalent("unlockShop")) restock();
@@ -508,6 +539,11 @@ function submitContract(){
  const cartHtml = cartographerBonus ? `<p><strong>🗺 Cartographer Bonus:</strong> +${money(cartographerBonus)} Gold</p>` : "";
  document.getElementById("resultBody").innerHTML=`<p><strong>You earned ${money(exp)} EXP and ${money(gold)} Gold!</strong></p>${talentHtml}${cartHtml}<p>Bonus Loot: <strong>${loot.text}</strong></p>${loadoutMsg}`;
  openModal("resultModal"); render();
+ }catch(err){
+  console.error("Roll Loot failed", err);
+  const e=document.getElementById("contractErrors");
+  if(e){ e.innerHTML="<strong>Roll Loot failed:</strong><br>"+(err && err.message ? err.message : String(err)); e.style.display="block"; }
+ }
 }
 function levelUp(){
  while(state.exp>=expNeed()){state.exp-=expNeed(); state.level++; state.tp++; if(hasTalent("prepared"))state.gold+=75; if(hasTalent("seasonedSpecialist"))state.gold+=75;}
@@ -534,10 +570,10 @@ function rollLoot(above){
 function saveFile(){
  state=repairSave(state);
  const blob=new Blob([JSON.stringify(state,null,2)],{type:"application/json"});
- const a=document.createElement("a"); a.href=URL.createObjectURL(blob); a.download="phasmophobia-rpg-character-v1.0.3.json"; a.click();
+ const a=document.createElement("a"); a.href=URL.createObjectURL(blob); a.download="phasmophobia-rpg-character-v1.0.4.json"; a.click();
 }
 function loadFile(ev){
- const f=ev.target.files[0]; if(!f)return; const r=new FileReader(); r.onload=()=>{try{state=repairSave(JSON.parse(r.result)); render(); alert("Character loaded and updated for v1.0.3.");}catch(err){alert("Could not load character file. The save may be corrupted or not valid JSON.");}}; r.readAsText(f);
+ const f=ev.target.files[0]; if(!f)return; const r=new FileReader(); r.onload=()=>{try{state=repairSave(JSON.parse(r.result)); render(); alert("Character loaded and updated for v1.0.4.");}catch(err){alert("Could not load character file. The save may be corrupted or not valid JSON.");}}; r.readAsText(f);
 }
 function newCharacter(){if(confirm("Start a new character? This clears browser autosave.")){state=fresh();localStorage.removeItem("phasmoRpgV1");render()}}
 render();
