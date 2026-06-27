@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Phasmophobia RPG</title>
+  <link rel="stylesheet" href="./styles.css" />
+</head>
+<body>
+  <div class="app">
+    <header class="header">
+      <div>
+        <h1>Phasmophobia RPG v1.1.0</h1>
+        <p>Persistent RPG campaign companion for Phasmophobia.</p>
+      </div>
+      <div class="top-actions">
+        <button id="completeContractBtn" class="primary">Complete Contract</button>
+        <button id="newCharacterBtn">New Character</button>
+        <button id="saveBtn">Save Character</button>
+        <button id="loadBtn">Load Character</button>
+        <input id="loadInput" type="file" accept=".json" hidden />
+      </div>
+    </header>
+
+    <nav id="tabs" class="tabs"></nav>
+    <main id="content" class="content"></main>
+  </div>
+
+  <div id="modalRoot"></div>
+
+  <script type="module" src="./app.js"></script>
+</body>
+</html>
