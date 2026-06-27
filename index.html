@@ -74,7 +74,7 @@ input.invalid,select.invalid{border-color:var(--bad);box-shadow:0 0 0 2px rgba(2
 <div class="wrap">
 <header>
   <div>
-    <h1>Phasmophobia RPG v1.0.2</h1>
+    <h1>Phasmophobia RPG v1.0.3</h1>
     <div class="sub">Companion RPG campaign tracker for Phasmophobia</div>
   </div>
   <div class="actions">
@@ -139,6 +139,7 @@ input.invalid,select.invalid{border-color:var(--bad);box-shadow:0 0 0 2px rgba(2
 </div>
 
 <script>
+const SAVE_VERSION="1.0.3";
 const DIFFS=["Amateur","Intermediate","Professional","Nightmare","Insanity"];
 const MAPS=["Tanglewood Drive","Edgefield Road","Ridgeview Court","Willow Street","Grafton Farmhouse","Bleasdale Farmhouse","Camp Woodwind","Maple Lodge Campsite","Prison","Brownstone High School","Sunny Meadows","Sunny Meadows Restricted","Point Hope"];
 const PRIMARY=["EMF Reader","Flashlight","UV Light","Spirit Box","Ghost Writing Book","Thermometer","DOTS Projector","Video Camera"];
@@ -199,15 +200,63 @@ function nextDailyResetText(){
 function fresh(){
  let eq={}; PRIMARY.forEach(n=>eq[n]={tier:1,slots:1,primary:true}); SECONDARY.forEach(n=>eq[n]={tier:0,slots:0,primary:false});
  let prog={}; MAPS.forEach(m=>{prog[m]={}; DIFFS.forEach(d=>prog[m][d]={clears:0,perfects:0,deaths:0})});
- return {name:"Investigator",level:1,exp:0,gold:0,tp:0,equipment:eq,progress:prog,diffStats:{},talents:{},shop:[],lastLoot:"None",contracts:0,firstSession:true,cartographerDaily:{date:todayKey(),maps:{}}};
+ return {saveVersion:SAVE_VERSION,name:"Investigator",level:1,exp:0,gold:0,tp:0,equipment:eq,progress:prog,diffStats:{},talents:{},shop:[],lastLoot:"None",contracts:0,firstSession:true,cartographerDaily:{date:todayKey(),maps:{}}};
 }
-let state=JSON.parse(localStorage.getItem("phasmoRpgV1")||"null")||fresh();
-state.cartographerDaily ||= {date:todayKey(),maps:{}};
+function repairSave(input){
+ let s=input && typeof input==="object" ? input : fresh();
+ const base=fresh();
+ s.saveVersion = SAVE_VERSION;
+ s.name ||= base.name;
+ s.level = Number.isFinite(+s.level) && +s.level>0 ? Math.floor(+s.level) : 1;
+ s.exp = Number.isFinite(+s.exp) && +s.exp>=0 ? Math.floor(+s.exp) : 0;
+ s.gold = Number.isFinite(+s.gold) && +s.gold>=0 ? Math.floor(+s.gold) : 0;
+ s.tp = Number.isFinite(+s.tp) && +s.tp>=0 ? Math.floor(+s.tp) : 0;
+ s.contracts = Number.isFinite(+s.contracts) && +s.contracts>=0 ? Math.floor(+s.contracts) : 0;
+ s.firstSession = s.firstSession !== false;
+ s.lastLoot ||= "None";
+ s.talents ||= {};
+ // Talent key migrations / aliases for old saves.
+ if(s.talents.mapExpert && !s.talents.routePlanner) s.talents.routePlanner = true;
+ if(s.talents.unlockDailies && !s.talents.cartographer) s.talents.cartographer = true;
+ s.equipment ||= {};
+ PRIMARY.forEach(n=>{
+   s.equipment[n] ||= {tier:1,slots:1,primary:true};
+   s.equipment[n].primary=true;
+   s.equipment[n].tier=Math.max(1,Math.min(3,Math.floor(+s.equipment[n].tier||1)));
+   s.equipment[n].slots=Math.max(1,Math.min(itemCap(n),Math.floor(+s.equipment[n].slots||1)));
+ });
+ SECONDARY.forEach(n=>{
+   s.equipment[n] ||= {tier:0,slots:0,primary:false};
+   s.equipment[n].primary=false;
+   s.equipment[n].tier=Math.max(0,Math.min(3,Math.floor(+s.equipment[n].tier||0)));
+   const minSlots=s.equipment[n].tier>0?1:0;
+   s.equipment[n].slots=Math.max(minSlots,Math.min(itemCap(n),Math.floor(+s.equipment[n].slots||minSlots)));
+ });
+ s.progress ||= {};
+ MAPS.forEach(m=>{
+   s.progress[m] ||= {};
+   DIFFS.forEach(d=>{
+     s.progress[m][d] ||= {clears:0,perfects:0,deaths:0};
+     s.progress[m][d].clears=Math.max(0,Math.floor(+s.progress[m][d].clears||0));
+     s.progress[m][d].perfects=Math.max(0,Math.floor(+s.progress[m][d].perfects||0));
+     s.progress[m][d].deaths=Math.max(0,Math.floor(+s.progress[m][d].deaths||0));
+   });
+ });
+ s.diffStats ||= {};
+ DIFFS.forEach(d=>{
+   s.diffStats[d] ||= {clears:0,perfects:0,deaths:0};
+   s.diffStats[d].clears=Math.max(0,Math.floor(+s.diffStats[d].clears||0));
+   s.diffStats[d].perfects=Math.max(0,Math.floor(+s.diffStats[d].perfects||0));
+   s.diffStats[d].deaths=Math.max(0,Math.floor(+s.diffStats[d].deaths||0));
+ });
+ s.cartographerDaily ||= {date:todayKey(),maps:{}};
+ if(s.cartographerDaily.date !== todayKey()) s.cartographerDaily = {date:todayKey(),maps:{}};
+ s.cartographerDaily.maps ||= {};
+ s.shop = Array.isArray(s.shop) ? s.shop.filter(it=>it && (it.type==="talentPoint" || (it.target && s.equipment[it.target]))) : [];
+ return s;
+}
+let state=repairSave(JSON.parse(localStorage.getItem("phasmoRpgV1")||"null")||fresh());
 resetCartographerDaily();
-// Migration support for older saved characters.
-PRIMARY.forEach(n=>{state.equipment[n] ||= {tier:1,slots:1,primary:true}; if(state.equipment[n].slots>itemCap(n)) state.equipment[n].slots=itemCap(n);});
-SECONDARY.forEach(n=>{state.equipment[n] ||= {tier:0,slots:0,primary:false}; if(state.equipment[n].slots>itemCap(n)) state.equipment[n].slots=itemCap(n);});
-DIFFS.forEach(d=>state.diffStats[d] ||= {clears:0,perfects:0,deaths:0});
 function expNeed(l=state.level){return 100+l*50}
 function maxDiff(){let out="Amateur"; LEVEL_DIFF.forEach(([d,l])=>{if(state.level>=l)out=d}); return out}
 function diffIndex(d){return DIFFS.indexOf(d)}
@@ -377,7 +426,7 @@ function renderRules(){
  <h3>Shop</h3><ul><li>The Shop is locked until you learn Unlock Shop for 3 TP.</li><li>Gold buys equipment unlocks, gear upgrades, slot unlocks, and randomly available Talent Points.</li><li>Stock is rerolled after each contract.</li><li>Reroll stock costs Player Level × 100 Gold, reduced by talents.</li></ul>
  <h3>Cursed Items</h3><ul><li>Cursed possessions require their matching Cursed Item talent before your character may use them.</li><li>Unlocked cursed items are shown on the Character page.</li></ul>
  <h3>Dailies</h3><ul><li>Unlock Dailies grants +100 Gold for the first successful clear on each map each day.</li><li>This bonus is flat and is not increased by other Gold talents.</li><li>When unlocked, daily map progress appears on the Character page.</li></ul>
- <h3>Multiplayer</h3><ul><li>Each player tracks their own character.</li><li>You may use the host's gear, even if your character has not unlocked it.</li><li>Playing above your recommended difficulty shifts loot toward reduced Gold instead of equipment progression.</li></ul>
+ <h3>Multiplayer</h3><ul><li>Each player tracks their own character.</li><li>You may use the host's gear, even if your character has not unlocked it.</li><li>Playing above your recommended difficulty shifts loot toward reduced Gold instead of equipment progression.</li></ul><h3>Save Compatibility</h3><ul><li>Saves include a version number and are repaired on load.</li><li>Older saves automatically receive missing fields for new talents, dailies, shop gating, slot caps, and progress tracking.</li><li>Future talent additions should not require a new character.</li></ul>
  </div>`;
 }
 function buyTalent(k){let t=TALENTS.find(x=>x[0]===k); if(!t||state.talents[k]||state.tp<t[3])return; state.tp-=t[3]; state.talents[k]=true; render();}
@@ -483,11 +532,12 @@ function rollLoot(above){
  const item=cat.items[Math.floor(Math.random()*cat.items.length)]; applyReward(item); return {type:item.type,text:state.lastLoot};
 }
 function saveFile(){
+ state=repairSave(state);
  const blob=new Blob([JSON.stringify(state,null,2)],{type:"application/json"});
- const a=document.createElement("a"); a.href=URL.createObjectURL(blob); a.download="phasmophobia-rpg-character.json"; a.click();
+ const a=document.createElement("a"); a.href=URL.createObjectURL(blob); a.download="phasmophobia-rpg-character-v1.0.3.json"; a.click();
 }
 function loadFile(ev){
- const f=ev.target.files[0]; if(!f)return; const r=new FileReader(); r.onload=()=>{state=JSON.parse(r.result); render()}; r.readAsText(f);
+ const f=ev.target.files[0]; if(!f)return; const r=new FileReader(); r.onload=()=>{try{state=repairSave(JSON.parse(r.result)); render(); alert("Character loaded and updated for v1.0.3.");}catch(err){alert("Could not load character file. The save may be corrupted or not valid JSON.");}}; r.readAsText(f);
 }
 function newCharacter(){if(confirm("Start a new character? This clears browser autosave.")){state=fresh();localStorage.removeItem("phasmoRpgV1");render()}}
 render();
