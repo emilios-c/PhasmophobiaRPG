@@ -248,11 +248,9 @@ export function renderRewardModal(result) {
     <h3>Experience</h3>
     ${rows(result.breakdown.exp)}
     <div class="breakdown-row"><span>Final EXP</span><strong>${money(result.exp)}</strong></div>
-    <hr class="section-divider">
     <h3>Gold</h3>
     ${rows(result.breakdown.gold)}
     <div class="breakdown-row"><span>Final Gold</span><strong>${money(result.gold)}</strong></div>
-    <hr class="section-divider">
     <h3>Loot</h3>
     <p><strong>${result.loot.text}</strong></p>
     ${result.shouldUpdateLoadout ? `<p class="warn">Update your loadout in-game and click Continue.</p>` : ""}

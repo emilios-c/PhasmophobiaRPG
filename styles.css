@@ -116,7 +116,7 @@ input.invalid, select.invalid { border-color: var(--bad); box-shadow: 0 0 0 2px 
 }
 
 
-/* v1.1.2 compact reward modal */
+/* v1.1.3 compact reward modal */
 .reward-summary {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -151,3 +151,19 @@ input.invalid, select.invalid { border-color: var(--bad); box-shadow: 0 0 0 2px 
 
 .breakdown.compact .breakdown-row{line-height:1.15;margin:0;}
 .breakdown.compact h3{margin-top:2px;}
+
+
+/* v1.1.3 cleaner reward breakdown */
+.breakdown.compact .breakdown-row {
+  border-bottom: 0;
+  padding: 1px 0;
+  line-height: 1.12;
+}
+.breakdown.compact h3 {
+  margin: 6px 0 3px;
+  padding-bottom: 4px;
+  border-bottom: 1px solid var(--line);
+}
+.breakdown.compact .section-divider {
+  display: none;
+}
