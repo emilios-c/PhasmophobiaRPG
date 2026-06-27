@@ -74,7 +74,7 @@ input.invalid,select.invalid{border-color:var(--bad);box-shadow:0 0 0 2px rgba(2
 <div class="wrap">
 <header>
   <div>
-    <h1>Phasmophobia RPG v1.0.1</h1>
+    <h1>Phasmophobia RPG v1.0.2</h1>
     <div class="sub">Companion RPG campaign tracker for Phasmophobia</div>
   </div>
   <div class="actions">
@@ -148,38 +148,40 @@ const ITEM_CAPS={"D.O.T.S Projector":2,"DOTS Projector":2,"EMF Reader":2,"Flashl
 function itemCap(n){return ITEM_CAPS[n]||3}
 const LEVEL_DIFF=[["Amateur",1],["Intermediate",5],["Professional",10],["Nightmare",20],["Insanity",35]];
 const TALENTS=[
- ["keenEye","Keen Eye","Bone and perfect-style play grants +5% Gold.",1],
- ["photographer","Photographer","+5% EXP from contracts.",1],
- ["thorough","Thorough","+5% Gold from contracts.",1],
- ["professional","Professional","Correct ghost bonus is slightly stronger.",1],
- ["veteranInvestigator","Veteran Investigator","Perfect Investigations add +100 Gold.",2],
- ["gearMaintenance","Gear Maintenance","Gear upgrades cost 10% less.",1],
- ["efficientStorage","Efficient Storage","Slot upgrades cost 10% less.",1],
- ["fieldRepairs","Field Repairs","Shop rerolls cost 10% less.",1],
- ["quartermaster","Quartermaster","Secondary unlocks cost 10% less.",1],
- ["discountHunter","Discount Hunter","All shop purchases cost 5% less.",2],
- ["organized","Organized","+5% Gold from gold cache rewards.",1],
- ["prepared","Prepared","Level-up grants +75 Gold.",1],
- ["stockpile","Stockpile","Gold cache rewards are +10% larger.",1],
- ["logistics","Logistics","Shop shows one additional item.",2],
- ["arsenal","Arsenal","Slot unlock loot has slightly higher weight.",2],
- ["luckyFind","Lucky Find","Equipment unlock loot has slightly higher weight.",1],
- ["treasureHunter","Treasure Hunter","Gold cache loot has +10% value.",1],
- ["gambler","Gambler","Reroll cost reduced by another 10%.",1],
- ["jackpot","Jackpot","Small chance for +100 bonus Gold on loot.",2],
- ["fortuneFavors","Fortune Favors","Above-difficulty gold conversion is less punishing.",2],
- ["experience","Experience","+5% EXP from every contract.",1],
- ["fastLearner","Fast Learner","First contract after loading grants +50 EXP.",1],
- ["survivor","Survivor","Surviving grants +5% EXP.",1],
- ["cartographer","Cartographer","The first successful contract completed on each map each day grants +100 Gold.",1],
- ["seasonedSpecialist","Seasoned Specialist","Each level-up grants +75 Gold.",2],
- ["cursedMusicBox","Cursed Attunement: Music Box","You may use the Music Box during contracts.",1,"Cursed Items"],
- ["cursedOuijaBoard","Cursed Attunement: Ouija Board","You may use the Ouija Board during contracts.",1,"Cursed Items"],
- ["cursedTarotCards","Cursed Attunement: Tarot Cards","You may use Tarot Cards during contracts.",1,"Cursed Items"],
- ["cursedHauntedMirror","Cursed Attunement: Haunted Mirror","You may use the Haunted Mirror during contracts.",1,"Cursed Items"],
- ["cursedVoodooDoll","Cursed Attunement: Voodoo Doll","You may use the Voodoo Doll during contracts.",1,"Cursed Items"],
- ["cursedSummoningCircle","Cursed Attunement: Summoning Circle","You may use the Summoning Circle during contracts.",1,"Cursed Items"],
- ["cursedMonkeyPaw","Cursed Attunement: Monkey Paw","You may use the Monkey Paw during contracts.",1,"Cursed Items"],
+ ["unlockShop","Unlock Shop","Unlocks the Shop tab and allows Gold to be spent on gear, slots, upgrades, and randomly available Talent Points.",3,"Key Unlocks"],
+ ["cartographer","Unlock Dailies","Unlocks daily map bonuses on the Character screen. The first successful clear on each map each day grants a flat +100 Gold.",2,"Key Unlocks"],
+ ["cursedMusicBox","Cursed Attunement: Music Box","You may use the Music Box during contracts.",2,"Cursed Items"],
+ ["cursedOuijaBoard","Cursed Attunement: Ouija Board","You may use the Ouija Board during contracts.",2,"Cursed Items"],
+ ["cursedTarotCards","Cursed Attunement: Tarot Cards","You may use Tarot Cards during contracts.",2,"Cursed Items"],
+ ["cursedHauntedMirror","Cursed Attunement: Haunted Mirror","You may use the Haunted Mirror during contracts.",2,"Cursed Items"],
+ ["cursedVoodooDoll","Cursed Attunement: Voodoo Doll","You may use the Voodoo Doll during contracts.",2,"Cursed Items"],
+ ["cursedSummoningCircle","Cursed Attunement: Summoning Circle","You may use the Summoning Circle during contracts.",2,"Cursed Items"],
+ ["cursedMonkeyPaw","Cursed Attunement: Monkey Paw","You may use the Monkey Paw during contracts.",2,"Cursed Items"],
+ ["keenEye","Keen Eye","Perfect-style play grants +5% Gold from contracts.",1,"General"],
+ ["professional","Professional","Correct ghost bonus is increased by +20 Gold.",1,"General"],
+ ["survivor","Survivor","Surviving grants +5% EXP.",1,"General"],
+ ["photographer","Photographer","Contracts grant +5% EXP.",2,"Experience"],
+ ["experience","Experience","Contracts grant an additional +5% EXP.",2,"Experience"],
+ ["fastLearner","Fast Learner","The first contract after loading the tracker grants +50 EXP.",1,"Experience"],
+ ["prepared","Prepared","Each level-up grants +75 Gold.",2,"Experience"],
+ ["seasonedSpecialist","Seasoned Specialist","Each level-up grants an additional +75 Gold.",3,"Experience"],
+ ["thorough","Thorough","Contracts grant +5% Gold.",2,"Economy"],
+ ["organized","Organized","Gold Cache loot rewards are +5% larger.",1,"Economy"],
+ ["treasureHunter","Treasure Hunter","Gold Cache loot rewards are +10% larger.",2,"Economy"],
+ ["stockpile","Stockpile","Gold Cache loot rewards are an additional +10% larger.",3,"Economy"],
+ ["veteranInvestigator","Veteran Investigator","Perfect Investigations add +100 Gold.",3,"Economy"],
+ ["mapExpert","Route Planner","Successful contracts on maps with fewer than 5 lifetime clears grant +25 Gold.",2,"Economy"],
+ ["gearMaintenance","Gear Maintenance","Gear tier upgrades cost 10% less.",2,"Shop"],
+ ["efficientStorage","Efficient Storage","Slot upgrades cost 10% less.",2,"Shop"],
+ ["quartermaster","Quartermaster","Secondary equipment unlocks cost 10% less.",2,"Shop"],
+ ["fieldRepairs","Field Repairs","Shop rerolls cost 10% less.",1,"Shop"],
+ ["gambler","Gambler","Shop rerolls cost an additional 10% less.",2,"Shop"],
+ ["discountHunter","Discount Hunter","All shop purchases cost 5% less.",4,"Shop"],
+ ["logistics","Logistics","Shop stock contains 5 items instead of 4.",3,"Shop"],
+ ["luckyFind","Lucky Find","Equipment Unlock loot weight is increased by +5.",2,"Loot"],
+ ["arsenal","Arsenal","Slot Unlock loot weight is increased by +5.",2,"Loot"],
+ ["jackpot","Jackpot","Gold Cache loot has a 5% chance to add +100 bonus Gold.",3,"Loot"],
+ ["fortuneFavors","Fortune Favors","When playing above your recommended difficulty, the EXP/Gold penalty is 15% per tier instead of 20% per tier.",5,"Loot"]
 ];
 const BASE_TABS=[
  ["getting","Getting Started"],["character","Character"],["equipment","Equipment"],["talents","Talents"],["progress","Progress"],["shop","Shop"],["rules","Rules"]
@@ -250,7 +252,9 @@ function renderTabs(){
  const nav=document.getElementById("tabs"); nav.innerHTML="";
  BASE_TABS.forEach(([id,label])=>{
   const b=document.createElement("button"); b.className="tabbtn"; b.dataset.tab=id;
-  b.textContent=id==="talents"?`Talents (${state.tp})`:label;
+  if(id==="talents") b.textContent=`Talents (${state.tp})`;
+  else if(id==="shop" && !hasTalent("unlockShop")) b.textContent="Shop 🔒";
+  else b.textContent=label;
   b.onclick=()=>showTab(id); nav.appendChild(b);
  });
 }
@@ -263,7 +267,7 @@ function renderGetting(){
  document.getElementById("getting").innerHTML=`
  <div class="grid"><div class="card span12 rules">
  <h2>How to Play</h2>
- <p>This tracker transforms <strong>Phasmophobia</strong> into an RPG progression system. Your character grows over time by earning experience, unlocking equipment, upgrading gear, and spending Talent Points.</p>
+ <p>This tracker transforms <strong>Phasmophobia</strong> into an RPG progression system. Your character grows over time by earning experience, unlocking equipment, upgrading gear, and spending Talent Points. The Shop starts locked and must be unlocked through the Key Unlocks talent category.</p>
  <h3>Before You Begin</h3>
  <ul>
  <li>For the best experience, have all Tier 3 equipment unlocked in Phasmophobia. If not, use the highest tier currently available until you unlock it in-game.</li>
@@ -271,7 +275,7 @@ function renderGetting(){
  <li>Equip one of every <strong>Tier 1 primary item</strong>.</li>
  <li>Do not equip any secondary equipment.</li>
  <li>Start a new character in this tracker.</li>
- <li><strong>Cursed Objects:</strong> Your character must learn the corresponding Cursed Object Talent before it can be used in game.</li></ul>
+ <li><strong>Cursed Objects:</strong> Do not use cursed objects during investigations until your character has learned the corresponding Cursed Object Talent. Once learned, that cursed object may be used in future contracts.</li></ul>
  <h3>Completing Contracts</h3>
  <ol><li>Play a contract in Phasmophobia.</li><li>Click <strong>Complete Contract</strong>.</li><li>Enter the map, difficulty, in-game reward money, and results.</li><li>Click <strong>Roll Loot</strong>.</li><li>If loot unlocks or upgrades equipment, update your in-game loadout before the next contract.</li></ol>
  <h3>Goal</h3>
@@ -285,7 +289,7 @@ function cartographerHtml(){
  resetCartographerDaily();
  const done=MAPS.filter(m=>state.cartographerDaily.maps[m]).length;
  const rows=MAPS.map(m=>`<tr><td>${state.cartographerDaily.maps[m]?"✓":"—"}</td><td>${m}</td><td>${state.cartographerDaily.maps[m]?"Claimed":"+100 Gold available"}</td></tr>`).join("");
- return `<div class="card span12"><h2>Cartographer Daily</h2><p class="small">First successful clear on each map today grants a flat +100 Gold. Next reset: <strong>${nextDailyResetText()}</strong></p><p><strong>${done}/${MAPS.length}</strong> claimed · Remaining bonus Gold: <strong>${money((MAPS.length-done)*100)}</strong></p><table><tr><th></th><th>Map</th><th>Status</th></tr>${rows}</table></div>`;
+ return `<div class="card span12"><h2>Daily Bonuses</h2><p class="small">Unlock Dailies: first successful clear on each map today grants a flat +100 Gold. Next reset: <strong>${nextDailyResetText()}</strong></p><p><strong>${done}/${MAPS.length}</strong> claimed · Remaining bonus Gold: <strong>${money((MAPS.length-done)*100)}</strong></p><table><tr><th></th><th>Map</th><th>Status</th></tr>${rows}</table></div>`;
 }
 function renderCharacter(){
  const need=expNeed(), pct=Math.min(100,state.exp/need*100), md=maxDiff(), cap=tierCap();
@@ -326,9 +330,11 @@ function renderEquipment(){
 }
 function renderTalents(){
  const groups={}; TALENTS.forEach(t=>{const g=t[4]||"General"; (groups[g] ||= []).push(t);});
- document.getElementById("talents").innerHTML=`<div class="card"><h2>Talents (${state.tp})</h2><p class="small">Earn Talent Points by leveling up. Each talent costs its listed TP. Cursed Item talents unlock permission to use that cursed possession during contracts.</p>${Object.entries(groups).map(([group,list])=>`<h3>${group}</h3><div class="talentgrid">${list.map(t=>{
+ const order=["Key Unlocks","Cursed Items","General","Experience","Economy","Shop","Loot"];
+ const html=order.filter(g=>groups[g]).map(group=>`<h3>${group}</h3><div class="talentgrid">${groups[group].map(t=>{
   const owned=hasTalent(t[0]); return `<div class="talent ${owned?'owned':''}"><h3>${t[1]} <span class="pill">${t[3]} TP</span></h3><p class="small">${t[2]}</p><button ${owned||state.tp<t[3]?'disabled':''} onclick="buyTalent('${t[0]}')">${owned?'Owned':'Learn'}</button></div>`
- }).join("")}</div>`).join("")}</div>`;
+ }).join("")}</div>`).join("");
+ document.getElementById("talents").innerHTML=`<div class="card"><h2>Talents (${state.tp})</h2><p class="small">Earn Talent Points by leveling up. Stronger talents cost more. Key Unlocks open major systems; Cursed Item talents unlock permission to use that cursed possession during contracts.</p>${html}</div>`;
 }
 function renderProgress(){
  let diffRows=DIFFS.map(d=>`<tr><td>${d}</td><td>${state.diffStats[d].clears}</td><td>${state.diffStats[d].perfects}</td><td>${state.diffStats[d].deaths}</td></tr>`).join("");
@@ -352,10 +358,15 @@ function restock(){
  let pool=validShopItems(); const count=hasTalent("logistics")?5:4; state.shop=[];
  while(pool.length && state.shop.length<count){let i=Math.floor(Math.random()*pool.length); state.shop.push(pool.splice(i,1)[0]);}
 }
+function rerollCost(){return Math.round(state.level*100*(1-(hasTalent("fieldRepairs") ? .10 : 0)-(hasTalent("gambler") ? .10 : 0)))}
 function renderShop(){
+ if(!hasTalent("unlockShop")){
+  document.getElementById("shop").innerHTML=`<div class="card"><h2>Shop Locked</h2><p>The Shop is locked until you learn <strong>Unlock Shop</strong> in the Key Unlocks talent category.</p><button onclick="showTab('talents')">Go to Talents</button></div>`;
+  return;
+ }
  if(!state.shop.length) restock();
- const rerollCost=Math.round(state.level*100*(1-(hasTalent("fieldRepairs")?.1:0)-(hasTalent("gambler")?.1:0)));
- document.getElementById("shop").innerHTML=`<div class="card"><h2>Shop</h2><p class="small">Purchasing does not restock the shop. Reroll stock costs Level × 100 Gold, reduced by talents.</p><button onclick="rerollShop()">Reroll Stock (${money(rerollCost)} Gold)</button><div class="shopgrid" style="margin-top:12px">${state.shop.map((it,i)=>`<div class="shopitem"><h3>${it.label}</h3><p class="small">${it.desc}</p><p><strong>${money(price(it))} Gold</strong></p><button ${state.gold<price(it)?'disabled':''} onclick="buyShop(${i})">Purchase</button></div>`).join("") || "<p>No valid shop items remain.</p>"}</div></div>`;
+ const cost=rerollCost();
+ document.getElementById("shop").innerHTML=`<div class="card"><h2>Shop</h2><p class="small">Stock is rerolled after each contract. Reroll stock costs Level × 100 Gold, reduced by talents.</p><button onclick="rerollShop()">Reroll Stock (${money(cost)} Gold)</button><div class="shopgrid" style="margin-top:12px">${state.shop.map((it,i)=>`<div class="shopitem"><h3>${it.label}</h3><p class="small">${it.desc}</p><p><strong>${money(price(it))} Gold</strong></p><button ${state.gold<price(it)?'disabled':''} onclick="buyShop(${i})">Purchase</button></div>`).join("") || "<p>No valid shop items remain.</p>"}</div></div>`;
 }
 function renderRules(){
  document.getElementById("rules").innerHTML=`<div class="card rules"><h2>Rules Reference</h2>
@@ -363,9 +374,9 @@ function renderRules(){
  <h3>Rewards</h3><ul><li>Enter the in-game reward money after each contract. The tracker converts it into reduced RPG Gold and EXP.</li><li>Correct ghost and survival matter for clears. Deaths are tracked.</li><li>Perfect Investigation requires correct ghost and survival.</li></ul>
  <h3>Loot</h3><ul><li>Loot is always awarded. At your recommended difficulty the table is 30% Equipment Unlock, 25% Slot Unlock, 15% Gear Upgrade, 30% Gold Cache.</li><li>Playing above your recommended difficulty shifts the loot pool toward Gold.</li><li>Rewards never roll something you already own or cannot use.</li><li>Equipment Unlock means Tier 1 + 1 slot for a locked secondary item.</li></ul>
  <h3>Gear Tier Unlocks</h3><ul><li>Tier 1 is available by default.</li><li>Tier 2 upgrades unlock after 5 Professional-or-higher clears.</li><li>Tier 3 upgrades unlock after 5 Nightmare-or-higher clears, but only after Tier 2 is unlocked.</li></ul>
- <h3>Shop</h3><ul><li>Gold buys equipment unlocks, gear upgrades, slot unlocks, and occasional Talent Points.</li><li>Purchases do not restock the shop.</li><li>Reroll stock costs Player Level × 100 Gold.</li></ul>
+ <h3>Shop</h3><ul><li>The Shop is locked until you learn Unlock Shop for 3 TP.</li><li>Gold buys equipment unlocks, gear upgrades, slot unlocks, and randomly available Talent Points.</li><li>Stock is rerolled after each contract.</li><li>Reroll stock costs Player Level × 100 Gold, reduced by talents.</li></ul>
  <h3>Cursed Items</h3><ul><li>Cursed possessions require their matching Cursed Item talent before your character may use them.</li><li>Unlocked cursed items are shown on the Character page.</li></ul>
- <h3>Cartographer</h3><ul><li>Cartographer grants +100 Gold for the first successful clear on each map each day.</li><li>This bonus is flat and is not increased by other Gold talents.</li><li>When unlocked, daily map progress appears on the Character page.</li></ul>
+ <h3>Dailies</h3><ul><li>Unlock Dailies grants +100 Gold for the first successful clear on each map each day.</li><li>This bonus is flat and is not increased by other Gold talents.</li><li>When unlocked, daily map progress appears on the Character page.</li></ul>
  <h3>Multiplayer</h3><ul><li>Each player tracks their own character.</li><li>You may use the host's gear, even if your character has not unlocked it.</li><li>Playing above your recommended difficulty shifts loot toward reduced Gold instead of equipment progression.</li></ul>
  </div>`;
 }
@@ -376,7 +387,7 @@ function buyShop(i){
  openModal("shopModal"); render();
 }
 function rerollShop(){
- const cost=Math.round(state.level*100*(1-(hasTalent("fieldRepairs")?.1:0)-(hasTalent("gambler")?.1:0)));
+ const cost=rerollCost();
  if(state.gold<cost){alert("Not enough Gold.");return} state.gold-=cost; restock(); render();
 }
 function applyReward(r){
@@ -411,7 +422,7 @@ function submitContract(){
  const rec=diffIndex(maxDiff()), played=diffIndex(diff.value), above=Math.max(0,played-rec);
  let expBase=Math.floor(val*.32), goldBase=Math.floor(val*.22);
  let expBonus=0, goldBonus=0, talentLines=[];
- if(correct){expBonus+=30; goldBonus+=30}
+ if(correct){expBonus+=30; goldBonus+=30; if(hasTalent("professional")){goldBonus+=20; talentLines.push("Professional: +20 Gold");}}
  if(alive){expBonus+=20}
  if(perfect){expBonus+=50; goldBonus+=75}
  if(perfect && hasTalent("veteranInvestigator")){goldBonus+=100; talentLines.push("Veteran Investigator: +100 Gold");}
@@ -420,9 +431,10 @@ function submitContract(){
  if(hasTalent("photographer")){ const before=expAfterTalents; expAfterTalents=Math.floor(expAfterTalents*1.05); talentLines.push(`Photographer: +${expAfterTalents-before} EXP`); }
  if(hasTalent("experience")){ const before=expAfterTalents; expAfterTalents=Math.floor(expAfterTalents*1.05); talentLines.push(`Experience: +${expAfterTalents-before} EXP`); }
  if(hasTalent("survivor")&&alive){ const before=expAfterTalents; expAfterTalents=Math.floor(expAfterTalents*1.05); talentLines.push(`Survivor: +${expAfterTalents-before} EXP`); }
+ if(hasTalent("keenEye")){ const before=goldAfterTalents; goldAfterTalents=Math.floor(goldAfterTalents*1.05); talentLines.push(`Keen Eye: +${goldAfterTalents-before} Gold`); }
  if(hasTalent("thorough")){ const before=goldAfterTalents; goldAfterTalents=Math.floor(goldAfterTalents*1.05); talentLines.push(`Thorough: +${goldAfterTalents-before} Gold`); }
  let exp=expAfterTalents, gold=goldAfterTalents;
- const penalty=Math.max(.2,1-.2*above);
+ const penalty=Math.max(.2,1-(hasTalent("fortuneFavors") ? .15 : .2)*above);
  if(above>0){ exp=Math.floor(exp*penalty); gold=Math.floor(gold*penalty); talentLines.push(`Above recommended difficulty: ${Math.round(penalty*100)}% EXP/Gold`); }
  if(hasTalent("fastLearner")&&state.firstSession){exp+=50; state.firstSession=false; talentLines.push("Fast Learner: +50 EXP");}
  let cartographerBonus=0;
@@ -431,12 +443,17 @@ function submitContract(){
   cartographerBonus=100;
   state.cartographerDaily.maps[map.value]=true;
  }
+ if(successfulClear && hasTalent("mapExpert")){
+  let lifetime=0; for(const d of DIFFS) lifetime += state.progress[map.value][d].clears||0;
+  if(lifetime<5){ gold+=25; talentLines.push("Route Planner: +25 Gold"); }
+ }
  state.exp+=exp; state.gold+=gold+cartographerBonus; state.contracts++;
  if(successfulClear){state.progress[map.value][diff.value].clears++; state.diffStats[diff.value].clears++}
  if(perfect){state.progress[map.value][diff.value].perfects++; state.diffStats[diff.value].perfects++}
  if(!alive){state.progress[map.value][diff.value].deaths++; state.diffStats[diff.value].deaths++}
- const loot=rollLoot(above); let loadoutMsg = loot.type==="gold" ? "" : "<p class='warn'>Update your loadout in-game and click Continue.</p>";
+ const loot=rollLoot(above); let loadoutMsg = loot.type==="gold" || loot.type==="talentPoint" ? "" : "<p class='warn'>Update your loadout in-game and click Continue.</p>";
  levelUp();
+ if(hasTalent("unlockShop")) restock();
  closeModal("contractModal");
  const talentHtml = talentLines.length ? `<h3>Talent & Modifier Bonuses</h3><ul>${talentLines.map(x=>`<li>${x}</li>`).join("")}</ul>` : "";
  const cartHtml = cartographerBonus ? `<p><strong>🗺 Cartographer Bonus:</strong> +${money(cartographerBonus)} Gold</p>` : "";
